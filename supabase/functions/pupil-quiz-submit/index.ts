@@ -235,7 +235,53 @@ serve(async (req) => {
         details: updateAttemptError.message,
       }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    // Check if all assigned pupils have submitted this quiz.
+    // If yes, create one completion alert for the teacher.
+    try {
+      const { data: quizData } = await supabase
+        .from("smart_quizzes")
+        .select("id, title, teacher_id, class_id")
+        .eq("id", quizId)
+        .maybeSingle();
 
+      if (quizData) {
+        const { count: assignedCount } = await supabase
+          .from("smart_quiz_assignments")
+          .select("*", { count: "exact", head: true })
+          .eq("quiz_id", quizId);
+
+        const { count: submittedCount } = await supabase
+          .from("smart_quiz_attempts")
+          .select("*", { count: "exact", head: true })
+          .eq("quiz_id", quizId)
+          .eq("status", "submitted");
+
+        if (
+          assignedCount !== null &&
+          submittedCount !== null &&
+          assignedCount > 0 &&
+          submittedCount >= assignedCount
+        ) {
+          await supabase
+            .from("quiz_completion_alerts")
+            .upsert(
+              {
+                teacher_id: quizData.teacher_id,
+                quiz_id: quizData.id,
+                class_id: quizData.class_id,
+                title: "Quiz completed",
+                message: `All pupils have completed "${quizData.title}".`,
+                is_read: false,
+              },
+              {
+                onConflict: "quiz_id",
+              },
+            );
+        }
+      }
+    } catch (_) {
+      // Do not block quiz submission if alert creation fails.
+    }
     return new Response(JSON.stringify({
       success: true,
       message: "Quiz submitted successfully",
