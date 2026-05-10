@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../services/supabase_service.dart';
+import '../../services/supabase_service.dart';
 import 'add_pupil_screen.dart';
 
 class ManageClassesScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _ManageClassesScreenState extends State<ManageClassesScreen> {
   bool _isSaving = false;
   List<Map<String, dynamic>> _classes = [];
 
-  static const String _defaultPin = '1234';
+  // static const String _defaultPin = '1234';
 
   @override
   void initState() {

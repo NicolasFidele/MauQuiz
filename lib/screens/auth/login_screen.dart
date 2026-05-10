@@ -8,8 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'register_screen.dart';
-import 'teacher_dashboard.dart';
-import 'pupil_dashboard.dart';
+import '../teacher/teacher_dashboard.dart';
+import '../pupil/pupil_dashboard.dart';
 import 'create_new_pin_screen.dart';
 
 class LoginScreen extends StatefulWidget {

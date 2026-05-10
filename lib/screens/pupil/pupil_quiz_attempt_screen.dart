@@ -191,7 +191,7 @@ class _PupilQuizAttemptScreenState extends State<PupilQuizAttemptScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.10),
+            color: Colors.white.withOpacity(0.14),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: Colors.white30),
           ),
@@ -223,9 +223,9 @@ class _PupilQuizAttemptScreenState extends State<PupilQuizAttemptScreen> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0F2027),
-                  Color(0xFF203A43),
-                  Color(0xFF2C5364),
+                  Color(0xFF1A3B5D),
+                  Color(0xFF245B7A),
+                  Color(0xFF327A88),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -346,20 +346,32 @@ class _PupilQuizAttemptScreenState extends State<PupilQuizAttemptScreen> {
                                         return RadioListTile<String>(
                                           value: optionText,
                                           groupValue: _answers[questionId],
+
                                           activeColor: Colors.cyanAccent,
+
+                                          fillColor: WidgetStateProperty.resolveWith<Color>(
+                                            (states) {
+                                              if (states.contains(MaterialState.selected)) {
+                                                return Colors.cyanAccent;
+                                              }
+                                              return Colors.white70;
+                                            },
+                                          ),
+
                                           title: Text(
                                             optionText,
                                             style: GoogleFonts.poppins(
                                               color: Colors.white,
                                             ),
                                           ),
+
                                           onChanged: (value) {
                                             setState(() {
-                                              _answers[questionId] =
-                                                  value ?? '';
+                                              _answers[questionId] = value ?? '';
                                             });
                                           },
                                         );
+                                        
                                       }),
                                   ],
                                 ),
@@ -376,7 +388,7 @@ class _PupilQuizAttemptScreenState extends State<PupilQuizAttemptScreen> {
                           child: ElevatedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _submitQuiz(),
+                                : () => _confirmSubmitQuiz(),
                             icon: _isSubmitting
                                 ? const SizedBox(
                                     height: 18,
@@ -410,6 +422,66 @@ class _PupilQuizAttemptScreenState extends State<PupilQuizAttemptScreen> {
       ),
     );
   }
+  Future<void> _confirmSubmitQuiz() async {
+  final shouldSubmit = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF1A3B5D),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        title: Text(
+          'Submit quiz?',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to submit your answers? You cannot change them after submission.',
+          style: GoogleFonts.poppins(
+            color: Colors.white70,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                color: Colors.white70,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.cyanAccent,
+              foregroundColor: const Color(0xFF11212D),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: Text(
+              'Submit',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (shouldSubmit == true) {
+    _submitQuiz();
+  }
+}
 }
 
 class PupilQuizResultScreen extends StatelessWidget {
@@ -442,7 +514,7 @@ class PupilQuizResultScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.10),
+            color: Colors.white.withOpacity(0.14),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: Colors.white30),
           ),
@@ -472,9 +544,9 @@ class PupilQuizResultScreen extends StatelessWidget {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0F2027),
-                  Color(0xFF203A43),
-                  Color(0xFF2C5364),
+                  Color(0xFF1A3B5D),
+                  Color(0xFF245B7A),
+                  Color(0xFF327A88),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

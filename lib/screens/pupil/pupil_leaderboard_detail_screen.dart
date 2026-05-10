@@ -251,9 +251,9 @@ class _PupilLeaderboardDetailScreenState
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0F2027),
-                  Color(0xFF203A43),
-                  Color(0xFF2C5364),
+                  Color(0xFF1A3B5D),
+                  Color(0xFF245B7A),
+                  Color(0xFF327A88),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

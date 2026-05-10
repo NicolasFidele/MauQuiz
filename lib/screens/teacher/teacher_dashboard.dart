@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'login_screen.dart';
-import 'create_class_screen.dart';
-import 'manage_classes_screen.dart';
-import 'view_classes_screen.dart';
-import 'smart_quiz_screen.dart';
-import 'manage_quizzes_screen.dart';
-import 'teacher_results_screen.dart';
-import 'manual_quiz_screen.dart';
-import 'analytics_home_screen.dart';
+import '../auth/login_screen.dart';
+import '../classes/create_class_screen.dart';
+import '../classes/manage_classes_screen.dart';
+import '../classes/view_classes_screen.dart';
+import '../quizzes/smart_quiz_screen.dart';
+import '../quizzes/manage_quizzes_screen.dart';
+import '../results/teacher_results_screen.dart';
+import '../quizzes/manual_quiz_screen.dart';
+import '../analytics/analytics_home_screen.dart';
 import 'teacher_profile_screen.dart';
-import 'send_announcement_screen.dart';
-import 'help_screen.dart';
-import 'about_screen.dart';
+import '../communication/send_announcement_screen.dart';
+import '../support/help_screen.dart';
+import '../support/about_screen.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -65,13 +65,18 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   }
 
   Future<void> _openResultsFromAlert() async {
-    final alertIds = _completionAlerts.map((a) => a['id']).toList();
+    final user = supabase.auth.currentUser;
 
-    if (alertIds.isNotEmpty) {
-      await supabase
-          .from('quiz_completion_alerts')
-          .update({'is_read': true})
-          .inFilter('id', alertIds);
+    if (user != null) {
+      try {
+        await supabase
+            .from('quiz_completion_alerts')
+            .update({'is_read': true})
+            .eq('teacher_id', user.id)
+            .eq('is_read', false);
+      } catch (e) {
+        debugPrint('Failed to mark alerts as read: $e');
+      }
     }
 
     if (!mounted) return;
@@ -273,28 +278,13 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           ),
                         ),
 
-                        const Spacer(),
-
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.10),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.white24),
-                          ),
-                          child: const Icon(
-                            Icons.person_outline,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
                       ],
                     ),
 
                     const SizedBox(height: 24),
 
                     Text(
-                      'Teacher Dashboard',
+                      'MauQuiz Teacher',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 28,
@@ -545,14 +535,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         builder: (_) => const LoginScreen(),
       ),
       (route) => false,
-    );
-  }
-
-  void _showComingSoon(BuildContext context, String title) {
-    Navigator.pop(context);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$title screen coming soon')),
     );
   }
 

@@ -29,7 +29,6 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
   List<String> _subtopics = [];
 
   String? _selectedClassId;
-  String? _selectedClassLabel;
 
   String? _selectedSubject;
   String? _selectedTopic;
@@ -94,7 +93,6 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
 
     if (_classes.isNotEmpty) {
       _selectedClassId = _classes.first['id']?.toString();
-      _selectedClassLabel = _classes.first['class_name']?.toString();
     }
   }
 
@@ -532,14 +530,8 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
                                     )
                                     .toList(),
                                 onChanged: (value) {
-                                  final selected = _classes.firstWhere(
-                                    (c) => c['id'].toString() == value,
-                                    orElse: () => {},
-                                  );
                                   setState(() {
                                     _selectedClassId = value;
-                                    _selectedClassLabel =
-                                        selected['class_name']?.toString();
                                   });
                                 },
                               ),

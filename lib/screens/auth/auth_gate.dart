@@ -3,8 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'login_screen.dart';
-import 'teacher_dashboard.dart';
-import 'pupil_dashboard.dart';
+import '../teacher/teacher_dashboard.dart';
+import '../pupil/pupil_dashboard.dart';
 
 class AuthGate extends StatefulWidget {
   const AuthGate({super.key});

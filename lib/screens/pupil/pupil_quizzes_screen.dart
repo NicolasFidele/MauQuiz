@@ -69,33 +69,33 @@ class _PupilQuizzesScreenState extends State<PupilQuizzesScreen> {
     );
   }
 
-  Color _statusColor(String availabilityStatus) {
-    switch (availabilityStatus) {
-      case 'open':
-        return Colors.green;
-      case 'upcoming':
-        return Colors.orange;
-      case 'closed':
-        return Colors.redAccent;
-      default:
-        return Colors.grey;
-    }
-  }
+  // Color _statusColor(String availabilityStatus) {
+  //   switch (availabilityStatus) {
+  //     case 'open':
+  //       return Colors.green;
+  //     case 'upcoming':
+  //       return Colors.orange;
+  //     case 'closed':
+  //       return Colors.redAccent;
+  //     default:
+  //       return Colors.grey;
+  //   }
+  // }
 
-  String _formatStatus(String status) {
-    switch (status) {
-      case 'open':
-        return 'Available';
-      case 'upcoming':
-        return 'Upcoming';
-      case 'closed':
-        return 'Closed';
-      case 'inactive':
-        return 'Inactive';
-      default:
-        return status;
-    }
-  }
+  // String _formatStatus(String status) {
+  //   switch (status) {
+  //     case 'open':
+  //       return 'Available';
+  //     case 'upcoming':
+  //       return 'Upcoming';
+  //     case 'closed':
+  //       return 'Closed';
+  //     case 'inactive':
+  //       return 'Inactive';
+  //     default:
+  //       return status;
+  //   }
+  // }
 
   Widget _buildCircle(double size, Color color) {
     return Container(
@@ -116,7 +116,7 @@ class _PupilQuizzesScreenState extends State<PupilQuizzesScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.10),
+            color: Colors.white.withOpacity(0.14),
             borderRadius: BorderRadius.circular(22),
             border: Border.all(color: Colors.white30),
             boxShadow: [
@@ -162,9 +162,9 @@ class _PupilQuizzesScreenState extends State<PupilQuizzesScreen> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0F2027),
-                  Color(0xFF203A43),
-                  Color(0xFF2C5364),
+                  Color(0xFF1A3B5D),
+                  Color(0xFF245B7A),
+                  Color(0xFF327A88),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

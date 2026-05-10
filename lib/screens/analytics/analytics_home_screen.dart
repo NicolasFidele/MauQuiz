@@ -11,11 +11,6 @@ import 'overall_analytics_screen.dart';
 class AnalyticsHomeScreen extends StatelessWidget {
   const AnalyticsHomeScreen({super.key});
 
-  void _showComingSoon(BuildContext context, String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$title coming soon')),
-    );
-  }
 
   Widget _buildCircle(double size, Color color) {
     return Container(

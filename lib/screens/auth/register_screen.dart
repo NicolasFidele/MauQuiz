@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Import your Supabase client helper
-import '../services/supabase_service.dart';
+import '../../services/supabase_service.dart';
 
 // Import other screens
 import 'otp_screen.dart';
@@ -197,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                     child: Column(
                       children: [
                         Text(
-                          'My App',
+                          'MauQuiz',
                           style: GoogleFonts.poppins(
                             fontSize: 34,
                             fontWeight: FontWeight.bold,

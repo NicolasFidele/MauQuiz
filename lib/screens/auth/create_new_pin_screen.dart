@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../services/supabase_service.dart';
+import '../../services/supabase_service.dart';
 import 'login_screen.dart';
 
 class CreateNewPinScreen extends StatefulWidget {

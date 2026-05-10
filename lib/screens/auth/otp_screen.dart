@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_screen.dart';
+import 'package:flutter/services.dart';
 
 class OtpScreen extends StatefulWidget {
   final String email;
@@ -84,7 +85,14 @@ class _OtpScreenState extends State<OtpScreen>
       );
       return;
     }
-
+    if (otp.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter the 6-digit verification code'),
+        ),
+      );
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -245,7 +253,7 @@ class _OtpScreenState extends State<OtpScreen>
                         const SizedBox(height: 10),
 
                         Text(
-                          'My App',
+                          'MauQuiz',
                           style: GoogleFonts.poppins(
                             fontSize: 34,
                             fontWeight: FontWeight.bold,
@@ -449,12 +457,18 @@ class _OtpScreenState extends State<OtpScreen>
     return TextField(
       controller: controller,
       keyboardType: TextInputType.number,
+      maxLength: 6,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(6),
+      ],
       style: GoogleFonts.poppins(
         color: Colors.white,
         fontSize: 14,
       ),
       decoration: InputDecoration(
         hintText: hint,
+        counterText: '',
         hintStyle: GoogleFonts.poppins(
           color: Colors.white70,
           fontSize: 14,
