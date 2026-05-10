@@ -1,6 +1,6 @@
-import 'dart:convert';
+// import 'dart:convert';
 import 'dart:ui';
-import 'package:crypto/crypto.dart';
+// import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -187,9 +187,9 @@ class _ManageClassesScreenState extends State<ManageClassesScreen> {
     return result ?? false;
   }
 
-  String _hashPin(String pin) {
-    return sha256.convert(utf8.encode(pin)).toString();
-  }
+  // String _hashPin(String pin) {
+  //   return sha256.convert(utf8.encode(pin)).toString();
+  // }
 
   String _formatDisplayDate(String? rawDate) {
     if (rawDate == null || rawDate.isEmpty) return '-';

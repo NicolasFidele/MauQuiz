@@ -241,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Column(
                       children: [
                         Text(
-                          'Smart EduQuiz',
+                          'MauQuiz',
                           style: GoogleFonts.poppins(
                             fontSize: 34,
                             fontWeight: FontWeight.bold,
