@@ -15,6 +15,8 @@ import 'manual_quiz_screen.dart';
 import 'analytics_home_screen.dart';
 import 'teacher_profile_screen.dart';
 import 'send_announcement_screen.dart';
+import 'help_screen.dart';
+import 'about_screen.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({super.key});
@@ -134,13 +136,6 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
               _drawerItem(
                 context,
-                icon: Icons.home_outlined,
-                title: 'Home',
-                onTap: () => Navigator.pop(context),
-              ),
-
-              _drawerItem(
-                context,
                 icon: Icons.person_outline,
                 title: 'Profile',
                 onTap: () {
@@ -171,23 +166,32 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
               _drawerItem(
                 context,
-                icon: Icons.settings_outlined,
-                title: 'Settings',
-                onTap: () => _showComingSoon(context, 'Settings'),
-              ),
-
-              _drawerItem(
-                context,
                 icon: Icons.help_outline,
                 title: 'Help',
-                onTap: () => _showComingSoon(context, 'Help'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const HelpScreen(),
+                    ),
+                  );
+                },
               ),
 
               _drawerItem(
                 context,
                 icon: Icons.info_outline,
                 title: 'About',
-                onTap: () => _showComingSoon(context, 'About'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AboutScreen(),
+                    ),
+                  );
+                },
               ),
 
               const Spacer(),
