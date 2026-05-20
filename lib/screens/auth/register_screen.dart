@@ -1,11 +1,9 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Import your Supabase client helper
 import '../../services/supabase_service.dart';
-
-// Import other screens
 import 'otp_screen.dart';
 import 'login_screen.dart';
 
@@ -18,21 +16,12 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen>
     with SingleTickerProviderStateMixin {
-  // =========================
-  // ANIMATION VARIABLES
-  // =========================
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // =========================
-  // FORM KEY
-  // =========================
   final _formKey = GlobalKey<FormState>();
 
-  // =========================
-  // TEXT CONTROLLERS
-  // =========================
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -40,15 +29,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  // =========================
-  // PASSWORD VISIBILITY
-  // =========================
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
-
-  // =========================
-  // LOADING STATE
-  // =========================
   bool _isLoading = false;
 
   @override
@@ -84,9 +66,30 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
-  // =========================
-  // REGISTER FUNCTION
-  // =========================
+  String? _validateStrongPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Enter password';
+    }
+
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Use at least one capital letter';
+    }
+
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Use at least one number';
+    }
+
+    if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=;/\\[\]~`]').hasMatch(value)) {
+      return 'Use at least one symbol';
+    }
+
+    return null;
+  }
+
   Future<void> _registerUser() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -117,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         ),
       );
 
-      print('User created: ${response.user?.email}');
+      debugPrint('User created: ${response.user?.email}');
 
       Navigator.push(
         context,
@@ -147,9 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // =========================
-          // BACKGROUND GRADIENT
-          // =========================
+          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -164,9 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
 
-          // =========================
-          // DECORATIVE CIRCLES
-          // =========================
+          // Decorative circles
           Positioned(
             top: -60,
             left: -40,
@@ -183,9 +182,6 @@ class _RegisterScreenState extends State<RegisterScreen>
             child: _buildCircle(220, Colors.blueAccent.withOpacity(0.14)),
           ),
 
-          // =========================
-          // MAIN CONTENT
-          // =========================
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -228,9 +224,6 @@ class _RegisterScreenState extends State<RegisterScreen>
 
                         const SizedBox(height: 30),
 
-                        // =========================
-                        // GLASS CARD
-                        // =========================
                         ClipRRect(
                           borderRadius: BorderRadius.circular(25),
                           child: BackdropFilter(
@@ -317,15 +310,21 @@ class _RegisterScreenState extends State<RegisterScreen>
                                       hint: 'Password',
                                       icon: Icons.lock_outline,
                                       isPasswordField: true,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Enter password';
-                                        }
-                                        if (value.length < 6) {
-                                          return 'Minimum 6 characters';
-                                        }
-                                        return null;
-                                      },
+                                      validator: _validateStrongPassword,
+                                    ),
+
+                                    const SizedBox(height: 8),
+
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Password must have at least 8 characters, 1 capital letter, 1 number and 1 symbol.',
+                                        style: GoogleFonts.poppins(
+                                          color: Colors.white70,
+                                          fontSize: 11.5,
+                                          height: 1.35,
+                                        ),
+                                      ),
                                     ),
 
                                     const SizedBox(height: 15),
@@ -340,18 +339,18 @@ class _RegisterScreenState extends State<RegisterScreen>
                                         if (value == null || value.isEmpty) {
                                           return 'Confirm your password';
                                         }
+
                                         if (value != passwordController.text) {
                                           return 'Passwords do not match';
                                         }
-                                        return null;
+
+                                        return _validateStrongPassword(value);
                                       },
                                     ),
 
                                     const SizedBox(height: 20),
 
-                                    // =========================
-                                    // CREATE ACCOUNT BUTTON
-                                    // =========================
+                                    // Create Account Button
                                     SizedBox(
                                       width: double.infinity,
                                       height: 50,
@@ -427,9 +426,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  // =========================
-  // GLASS INPUT FIELD
-  // =========================
   Widget _buildGlassField({
     required TextEditingController controller,
     required String hint,
@@ -542,9 +538,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  // =========================
-  // DECORATIVE CIRCLE
-  // =========================
   Widget _buildCircle(double size, Color color) {
     return Container(
       width: size,

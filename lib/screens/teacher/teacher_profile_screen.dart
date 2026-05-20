@@ -19,6 +19,7 @@ class TeacherProfileScreen extends StatefulWidget {
 class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
   final supabase = Supabase.instance.client;
 
+  final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _pupilUsernameController = TextEditingController();
@@ -44,6 +45,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
 
   @override
   void dispose() {
+    _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     _pupilUsernameController.dispose();
@@ -119,17 +121,52 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
     });
   }
 
+  String? _validateStrongPassword(String password) {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters.';
+    }
+
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      return 'Password must contain at least one capital letter.';
+    }
+
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      return 'Password must contain at least one number.';
+    }
+
+    if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-+=;/\\[\]~`]').hasMatch(password)) {
+      return 'Password must contain at least one symbol.';
+    }
+
+    return null;
+  }
+
   Future<void> _changePassword() async {
+    final currentPassword = _currentPasswordController.text.trim();
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
+
+    final user = supabase.auth.currentUser;
+    final email = user?.email;
+
+    if (user == null || email == null) {
+      _showMessage('No logged-in teacher found.');
+      return;
+    }
+
+    if (currentPassword.isEmpty) {
+      _showMessage('Please enter your current password.');
+      return;
+    }
 
     if (newPassword.isEmpty || confirmPassword.isEmpty) {
       _showMessage('Please enter and confirm the new password.');
       return;
     }
 
-    if (newPassword.length < 6) {
-      _showMessage('Password must be at least 6 characters.');
+    final passwordError = _validateStrongPassword(newPassword);
+    if (passwordError != null) {
+      _showMessage(passwordError);
       return;
     }
 
@@ -138,21 +175,36 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       return;
     }
 
+    if (currentPassword == newPassword) {
+      _showMessage('New password must be different from current password.');
+      return;
+    }
+
     setState(() => _savingPassword = true);
 
     try {
+      // Verify current password first.
+      await supabase.auth.signInWithPassword(
+        email: email,
+        password: currentPassword,
+      );
+
+      // Then update to new strong password.
       await supabase.auth.updateUser(
         UserAttributes(password: newPassword),
       );
 
+      _currentPasswordController.clear();
       _newPasswordController.clear();
       _confirmPasswordController.clear();
 
       _showMessage('Password changed successfully.');
     } catch (e) {
-      _showMessage('Error changing password: $e');
+      _showMessage('Current password is incorrect or password update failed.');
     } finally {
-      setState(() => _savingPassword = false);
+      if (mounted) {
+        setState(() => _savingPassword = false);
+      }
     }
   }
 
@@ -395,7 +447,11 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
             _statCard(Icons.quiz_outlined, 'Quizzes Created', _totalQuizzes),
             _statCard(Icons.class_outlined, 'Classes Created', _totalClasses),
             _statCard(Icons.groups_outlined, 'Pupils Managed', _totalPupils),
-            _statCard(Icons.assignment_turned_in_outlined, 'Quiz Attempts', _totalAttempts),
+            _statCard(
+              Icons.assignment_turned_in_outlined,
+              'Quiz Attempts',
+              _totalAttempts,
+            ),
           ],
         ),
       ],
@@ -408,7 +464,23 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle('Change Password'),
+          const SizedBox(height: 8),
+          Text(
+            'Use at least 8 characters, including 1 capital letter, 1 number and 1 symbol.',
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 12.5,
+              height: 1.4,
+            ),
+          ),
           const SizedBox(height: 14),
+          _inputField(
+            controller: _currentPasswordController,
+            hint: 'Current password',
+            icon: Icons.lock_person_outlined,
+            obscureText: true,
+          ),
+          const SizedBox(height: 12),
           _inputField(
             controller: _newPasswordController,
             hint: 'New password',

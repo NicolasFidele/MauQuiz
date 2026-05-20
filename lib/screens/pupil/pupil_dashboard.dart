@@ -174,9 +174,9 @@ class PupilDashboard extends StatelessWidget {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF1F5F8B),
-                Color(0xFF2E8CA6),
-                Color(0xFF4FA987),
+                Color(0xFF061A30),
+                Color(0xFF0B3A54),
+                Color(0xFF0F5B63),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
