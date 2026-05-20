@@ -11,6 +11,7 @@ import 'register_screen.dart';
 import '../teacher/teacher_dashboard.dart';
 import '../pupil/pupil_dashboard.dart';
 import 'create_new_pin_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -446,7 +447,28 @@ class _LoginScreenState extends State<LoginScreen>
                                         },
                                       ),
                                     ],
-
+                                    const SizedBox(height: 12),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: TextButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => const ForgotPasswordScreen(),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            'Forgot Password?',
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white70,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     const SizedBox(height: 20),
 
                                     SizedBox(
@@ -480,7 +502,7 @@ class _LoginScreenState extends State<LoginScreen>
                                               ),
                                       ),
                                     ),
-
+                                    
                                     const SizedBox(height: 12),
 
                                     if (isTeacher)
