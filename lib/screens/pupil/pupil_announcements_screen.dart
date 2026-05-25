@@ -1,3 +1,34 @@
+// ======================================================
+// pupil_announcements_screen.dart
+//
+// PURPOSE:
+// Display announcements sent to the pupil.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load announcements when screen opens
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-announcements
+// - Retrieve announcements for selected pupil
+//
+// Data Processing
+// - Extract announcement list
+// - Handle loading and error states
+//
+// Announcement Rules
+// - Display announcements sent to class
+// - Display announcements sent to all classes
+//
+// Utilities
+// - Format announcement dates
+// - Refresh announcement data
+// - Display status messages
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

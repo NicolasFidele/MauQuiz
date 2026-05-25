@@ -1,3 +1,32 @@
+// ======================================================
+// create_new_pin_screen.dart
+//
+// PURPOSE:
+// Allows a pupil to create a new PIN during first login.
+//
+// MAIN FEATURES:
+// - Validate new 4-digit PIN
+// - Confirm both PIN entries match
+// - Hash PIN using SHA-256
+// - Update pupil PIN in database
+// - Force pupil to return to login after PIN update
+//
+// DATABASE:
+//
+// WRITE:
+// - pupils
+//   → Update pin_hash
+//   → Set must_change_pin to false
+//
+// API:
+// No external API calls
+//
+// NAVIGATION:
+//
+// Opens:
+// - LoginScreen after successful PIN creation
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -23,30 +52,30 @@ class CreateNewPinScreen extends StatefulWidget {
   @override
   State<CreateNewPinScreen> createState() => _CreateNewPinScreenState();
 }
-
+// Controllers used to read PIN input fields.
 class _CreateNewPinScreenState extends State<CreateNewPinScreen> {
   final pinController = TextEditingController();
   final confirmPinController = TextEditingController();
-
+  // State used while saving the new PIN.
   bool _isSaving = false;
   bool _hidePin = true;
   bool _hideConfirmPin = true;
-
+  // Release text controllers when screen closes.
   @override
   void dispose() {
     pinController.dispose();
     confirmPinController.dispose();
     super.dispose();
   }
-
+  // Hash the PIN before saving it in the database.
   String _hashPin(String pin) {
     return sha256.convert(utf8.encode(pin)).toString();
   }
-
+  // Validate PIN, save hashed PIN, and update pupil login status.
   Future<void> _saveNewPin() async {
     final pin = pinController.text.trim();
     final confirmPin = confirmPinController.text.trim();
-
+    // Check that PIN contains exactly 4 digits.
     if (pin.length != 4 || int.tryParse(pin) == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('PIN must be exactly 4 digits')),
@@ -64,7 +93,8 @@ class _CreateNewPinScreenState extends State<CreateNewPinScreen> {
     setState(() {
       _isSaving = true;
     });
-
+    // WRITE to pupils table
+    // Save hashed PIN and disable first-login PIN reset.
     try {
       final updatedRows = await supabase
           .from('pupils')
@@ -86,7 +116,7 @@ class _CreateNewPinScreenState extends State<CreateNewPinScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('PIN updated successfully. Please log in.')),
       );
-
+      // Return pupil to login after successful PIN creation.
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -108,13 +138,12 @@ class _CreateNewPinScreenState extends State<CreateNewPinScreen> {
       }
     }
   }
-
+  // Build new PIN creation screen.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Child-friendly background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -244,7 +273,7 @@ class _CreateNewPinScreenState extends State<CreateNewPinScreen> {
       ),
     );
   }
-
+  // Reusable PIN input field.
   Widget _buildField({
     required TextEditingController controller,
     required String hint,

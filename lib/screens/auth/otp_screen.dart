@@ -1,3 +1,49 @@
+// ======================================================
+// otp_screen.dart
+//
+// PURPOSE:
+// Verify teacher email after account registration
+// using a One-Time Password (OTP).
+//
+// MAIN FEATURES:
+// - Receive OTP sent by email
+// - Validate 6-digit verification code
+// - Verify account using Supabase Auth
+// - Resend verification code
+// - Redirect user to login after verification
+//
+// DATABASE:
+// No direct table access
+//
+// AUTHENTICATION:
+//
+// Supabase Auth:
+//
+// READ:
+// - Verify email OTP
+//
+// WRITE:
+// - Activate verified account
+//
+// API:
+// No external API calls
+//
+// INPUT:
+// - email (received from registration screen)
+//
+// NAVIGATION:
+//
+// Opened from:
+// - RegisterScreen
+//
+// Opens:
+// - LoginScreen after successful verification
+//
+// UI FEATURES:
+// - Glassmorphism design
+// - Animated screen transition
+//
+// ======================================================
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

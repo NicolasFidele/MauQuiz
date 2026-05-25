@@ -1,3 +1,52 @@
+// ======================================================
+// smart_quiz_screen.dart
+//
+// PURPOSE:
+// Allow teachers to generate AI-assisted quizzes
+// based on curriculum content.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load teacher classes
+// - Load curriculum subjects, topics and subtopics
+//
+// Database Operations
+//
+// READ → classes
+// - Retrieve teacher classes
+//
+// READ → curriculum_items
+// - Retrieve subjects
+// - Retrieve topics
+// - Retrieve subtopics
+//
+// Backend Operations
+//
+// WRITE → Supabase Edge Function
+// - generate-smart-quiz
+// - Generate quiz draft using OpenAI
+//
+// Quiz Configuration
+// - Select class and curriculum content
+// - Select difficulty and question type
+// - Select number of questions
+// - Configure time limit and availability
+//
+// AI Rules
+// - Restrict generation using curriculum
+// - Support single, multiple or all subtopics
+// - Generate quiz as draft before publishing
+//
+// Navigation
+// - Open draft preview screen
+//
+// Utilities
+// - Generate automatic quiz title
+// - Validate inputs
+// - Format date and time
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -13,21 +62,21 @@ class SmartQuizScreen extends StatefulWidget {
   @override
   State<SmartQuizScreen> createState() => _SmartQuizScreenState();
 }
-
+// Supabase client used for database and authentication.
 class _SmartQuizScreenState extends State<SmartQuizScreen> {
   static final supabase = Supabase.instance.client;
-
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
-
+  // Loading states for screen and quiz generation.
   bool _isLoading = true;
   bool _isGenerating = false;
-
+  // Data loaded from curriculum and teacher classes.
   List<Map<String, dynamic>> _classes = [];
   List<String> _subjects = [];
   List<String> _topics = [];
   List<String> _subtopics = [];
-
+  // Selected quiz configuration values.
   String? _selectedClassId;
 
   String? _selectedSubject;
@@ -44,9 +93,9 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
 
   DateTime? _availableFrom;
   DateTime? _deadlineAt;
-
+  // Optional custom quiz title.
   final TextEditingController _titleController = TextEditingController();
-
+  // Initialise default dates and load screen data.
   @override
   void initState() {
     super.initState();
@@ -54,13 +103,13 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
     _deadlineAt = DateTime.now().add(const Duration(days: 1));
     _loadInitialData();
   }
-
+  // Release controller resources.
   @override
   void dispose() {
     _titleController.dispose();
     super.dispose();
   }
-
+  // Load teacher classes and curriculum subjects.
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
 
@@ -77,7 +126,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       }
     }
   }
-
+  // Load classes created by current teacher.
   Future<void> _loadTeacherClasses() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -95,7 +144,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       _selectedClassId = _classes.first['id']?.toString();
     }
   }
-
+  // Load available subjects from curriculum.
   Future<void> _loadSubjects() async {
     final response = await supabase
         .from('curriculum_items')
@@ -117,7 +166,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       await _loadTopicsForSubject(_selectedSubject!);
     }
   }
-
+  // Load topics when subject changes.
   Future<void> _loadTopicsForSubject(String subject) async {
     final response = await supabase
         .from('curriculum_items')
@@ -132,7 +181,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
         .toSet()
         .toList()
       ..sort();
-
+    // Reset topic and subtopic selections.
     setState(() {
       _topics = values;
       _selectedTopic = _topics.isNotEmpty ? _topics.first : null;
@@ -146,7 +195,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       await _loadSubtopicsForTopic(subject, _selectedTopic!);
     }
   }
-
+  // Load subtopics for selected topic.
   Future<void> _loadSubtopicsForTopic(String subject, String topic) async {
     final response = await supabase
         .from('curriculum_items')
@@ -169,7 +218,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       _selectedMultipleSubtopics = [];
     });
   }
-
+  // Set recommended question type per subject.
   String _defaultQuestionTypeForSubject(String subject) {
     final s = subject.toLowerCase();
 
@@ -193,7 +242,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
 
     return ['mcq', 'true_false', 'fill_blank', 'mixed'];
   }
-
+  // Select quiz availability date and time.
   Future<void> _pickAvailableFrom() async {
     final now = DateTime.now();
 
@@ -255,7 +304,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       );
     });
   }
-
+  // Validate inputs and generate draft quiz using AI.
   Future<void> _generateDraftQuiz() async {
     if (_selectedClassId == null) {
       _showSnack('Please select a class.');
@@ -289,7 +338,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
     }
 
     setState(() => _isGenerating = true);
-
+    // Prepare data sent to Edge Function.
     try {
       final payload = <String, dynamic>{
         'teacher_id': user.id,
@@ -315,7 +364,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       } else if (_subtopicMode == 'all') {
         payload['all_subtopics'] = true;
       }
-
+      // Send request to Supabase Edge Function.
       final response = await http.post(
         Uri.parse('$baseUrl/generate-smart-quiz'),
         headers: {'Content-Type': 'application/json'},
@@ -323,10 +372,10 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       );
 
       final data = jsonDecode(response.body);
-
+      // Open draft preview after successful generation.
       if (response.statusCode >= 200 && response.statusCode < 300) {
         if (!mounted) return;
-
+        // Show generated draft information.
         _showSuccessDialog(
           quizId: (data['quiz_id'] ?? '').toString(),
           quizTitle: (data['quiz_title'] ?? '').toString(),
@@ -404,7 +453,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
       ),
     );
   }
-
+  // Create automatic quiz title if empty.
   String _buildDefaultTitle() {
     if (_subtopicMode == 'single' && _selectedSingleSubtopic != null) {
       return '${_selectedSubject ?? ''} - ${_selectedSingleSubtopic!}';
@@ -414,22 +463,23 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
     }
     return '${_selectedSubject ?? ''} - All Subtopics';
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
   }
-
+  // Convert DateTime into readable format.
   String _formatDateTime(DateTime? dt) {
     if (dt == null) return 'Not selected';
     final two = (int v) => v.toString().padLeft(2, '0');
     return '${dt.day}/${dt.month}/${dt.year}  ${two(dt.hour)}:${two(dt.minute)}';
   }
-
+  // Build smart quiz configuration interface.
   @override
   Widget build(BuildContext context) {
+    // Ensure selected question type remains valid.
     final questionTypeOptions = _questionTypesForSubject(_selectedSubject);
 
     if (_questionType == null || !questionTypeOptions.contains(_questionType)) {
@@ -489,6 +539,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Quiz setup section.
                         _glassCard(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -596,6 +647,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        // Subtopic selection section.
                         _glassCard(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -707,6 +759,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        // Quiz generation options.
                         _glassCard(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,6 +887,7 @@ class _SmartQuizScreenState extends State<SmartQuizScreen> {
                         SizedBox(
                           width: double.infinity,
                           height: 54,
+                          // Generate AI draft quiz.
                           child: ElevatedButton.icon(
                             onPressed: _isGenerating ? null : _generateDraftQuiz,
                             icon: _isGenerating

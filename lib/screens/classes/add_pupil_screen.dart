@@ -1,3 +1,82 @@
+// ======================================================
+// add_pupil_screen.dart
+//
+// PURPOSE:
+// Allow teachers to add a new pupil to a class.
+//
+// MAIN FEATURES:
+// - Create pupil account
+// - Generate unique username automatically
+// - Assign default PIN
+// - Hash PIN before storage
+// - Force PIN reset on first login
+//
+// DATABASE:
+//
+// READ:
+//
+// - pupils
+//   → Retrieve existing usernames
+//   → Prevent duplicate usernames
+//
+// WRITE:
+//
+// - pupils
+//   → Insert new pupil record
+//
+// Fields written:
+// - class_id
+// - teacher_id
+// - full_name
+// - username
+// - pin_hash
+// - must_change_pin
+//
+// AUTHENTICATION:
+//
+// Teacher:
+// - Uses current authenticated teacher
+//   from Supabase Auth
+//
+// Pupil:
+//
+// Default Credentials:
+// - Username generated automatically
+// - Default PIN = 1234
+//
+// SECURITY:
+//
+// - PIN stored as SHA-256 hash
+// - Plain PIN is never stored
+// - First login requires PIN change
+//
+// BUSINESS RULES:
+//
+// Username Generation:
+// - Format: classCode_firstname
+// - Duplicate usernames receive
+//   incremental numbering
+//
+// Example:
+// C6_john
+// C6_john1
+// C6_john2
+//
+// INPUT:
+//
+// Required:
+// - classId
+// - classCode
+// - className
+// - pupil full name
+//
+// NAVIGATION
+// Opened from:
+// - ManageClassesScreen
+//
+// Returns:
+// - Success status after pupil creation
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

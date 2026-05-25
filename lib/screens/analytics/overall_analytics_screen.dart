@@ -1,3 +1,35 @@
+// ======================================================
+// overall_analytics_screen.dart
+//
+// PURPOSE:
+// Display overall teacher analytics and performance summary.
+//
+// MAIN FEATURES:
+// - Load overall analytics
+// - Show strongest and weakest subjects
+// - Show participation and average score
+// - Display subject performance overview
+//
+// DATABASE:
+// No direct database access
+//
+// API / CLOUD:
+//
+// READ:
+// Supabase Edge Function:
+// - analytics-overall
+//
+// Returned data:
+// - overall statistics
+// - strongest subject
+// - weakest subject
+// - subject performance
+//
+// NAVIGATION:
+// Opened from:
+// - AnalyticsHomeScreen
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -15,30 +47,34 @@ class OverallAnalyticsScreen extends StatefulWidget {
 }
 
 class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
+  // Supabase client used to identify current teacher.
   final supabase = Supabase.instance.client;
-
+  // Store analytics data and loading state.
   bool _isLoading = true;
 
   Map<String, dynamic>? overall;
   Map<String, dynamic>? strongestSubject;
   Map<String, dynamic>? weakestSubject;
   List<dynamic> subjects = [];
-
+  // Load analytics when screen opens.
   @override
   void initState() {
     super.initState();
     _fetchOverall();
   }
-
+  // READ analytics data using Supabase Edge Function.
   Future<void> _fetchOverall() async {
     setState(() => _isLoading = true);
 
     try {
+      // Retrieve current teacher session.
       final user = supabase.auth.currentUser;
       if (user == null) return;
-
+      // SEND request to analytics-overall Edge Function.
+      // Teacher ID is used to calculate analytics.
       final response = await http.get(
         Uri.parse('$baseUrl/analytics-overall?teacherId=${user.id}')
       );
@@ -46,6 +82,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Store analytics results returned by Edge Function.
         setState(() {
           overall = data['overall'];
           strongestSubject = data['strongest_subject'];
@@ -63,7 +100,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       }
     }
   }
-
+  // Generate interpretation text from analytics values.
   String _insightText() {
     if (overall == null) {
       return '';
@@ -94,7 +131,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
 
     return 'Overall performance is encouraging across the published quizzes.';
   }
-
+  // Determine display colour based on score range.
   Color _scoreColor(int score) {
     if (score < 50) return Colors.redAccent;
     if (score < 70) return Colors.orange;
@@ -129,7 +166,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       ),
     );
   }
-
+  // Display summary analytics indicators.
   Widget _summaryTile({
     required String title,
     required String value,
@@ -170,7 +207,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       ),
     );
   }
-
+  // Display strongest and weakest subject highlights.
   Widget _highlightRow({
     required String label,
     required String value,
@@ -216,16 +253,17 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       ),
     );
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
   }
-
-  @override
+  // Build overall analytics interface.
+  @override 
   Widget build(BuildContext context) {
+    // Extract analytics values for display.
     final publishedQuizzes = overall?['published_quizzes'] ?? 0;
     final totalSubmissions = overall?['total_submissions'] ?? 0;
     final averageScore = overall?['overall_average_score'] ?? 0;
@@ -341,6 +379,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        // Display strongest and weakest subjects.
                         if (strongestSubject != null || weakestSubject != null)
                           _glassCard(
                             child: Column(
@@ -393,6 +432,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
                               ),
                             ),
                           ),
+                        // Display performance for each subject.
                         ...subjects.map((item) {
                           final score = (item['average_score'] ?? 0) as int;
                           final color = _scoreColor(score);
@@ -474,7 +514,7 @@ class _OverallAnalyticsScreenState extends State<OverallAnalyticsScreen> {
       ),
     );
   }
-
+  // Display small analytics indicators.
   Widget _miniChip(String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

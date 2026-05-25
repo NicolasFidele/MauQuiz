@@ -1,3 +1,8 @@
+// Teacher Dashboard screen
+// This screen is the main home page for teachers after login.
+// It loads dashboard statistics, quiz completion alerts, recent quizzes,
+// and provides navigation to the main teacher features.
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -26,48 +31,68 @@ class TeacherDashboard extends StatefulWidget {
 }
 
 class _TeacherDashboardState extends State<TeacherDashboard> {
+  // Supabase client used to read teacher data and logout.
   final supabase = Supabase.instance.client;
 
+  // State used for quiz completion alerts.
   bool _loadingAlerts = true;
   List<Map<String, dynamic>> _completionAlerts = [];
+
+  // State used for dashboard statistics and recent quizzes.
+  bool _loadingDashboard = true;
+  int _totalQuizzes = 0;
+  int _totalPupils = 0;
+  int _completedAttempts = 0;
+  double _averageScore = 0;
+  List<Map<String, dynamic>> _recentQuizzes = [];
 
   @override
   void initState() {
     super.initState();
+
+    // Load alerts and dashboard data when the screen opens.
     _loadCompletionAlerts();
     _loadDashboardData();
   }
+
+  // Load dashboard statistics for the logged-in teacher.
   Future<void> _loadDashboardData() async {
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
 
+      // Get quizzes created by the current teacher.
       final quizzes = await supabase
           .from('smart_quizzes')
           .select('id, title, subject, topic, status, created_at, class_id')
           .eq('teacher_id', user.id)
           .order('created_at', ascending: false);
 
+      // Get classes created by the current teacher.
       final classes = await supabase
           .from('classes')
           .select('id, class_name')
           .eq('teacher_id', user.id);
 
+      // Get pupils linked to the current teacher.
       final pupils = await supabase
           .from('pupils')
           .select('id')
           .eq('teacher_id', user.id);
 
+      // Create a map to match class IDs with class names.
       final classMap = {
         for (final c in classes) c['id'].toString(): c['class_name'].toString()
       };
 
+      // Extract quiz IDs to fetch submitted attempts.
       final quizIds = List<Map<String, dynamic>>.from(quizzes)
           .map((q) => q['id'])
           .toList();
 
       List<Map<String, dynamic>> attempts = [];
 
+      // Load submitted attempts only if quizzes exist.
       if (quizIds.isNotEmpty) {
         final attemptsData = await supabase
             .from('smart_quiz_attempts')
@@ -80,17 +105,21 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
       double avg = 0;
 
+      // Calculate the average score from submitted attempts.
       if (attempts.isNotEmpty) {
         final total = attempts.fold<double>(0, (sum, item) {
           final value = item['score_percent'];
+
           if (value is int) return sum + value.toDouble();
           if (value is double) return sum + value;
+
           return sum + (double.tryParse(value.toString()) ?? 0);
         });
 
         avg = total / attempts.length;
       }
 
+      // Prepare the 3 most recent quizzes for display.
       final recent = List<Map<String, dynamic>>.from(quizzes.take(3)).map((quiz) {
         final classId = quiz['class_id']?.toString();
 
@@ -106,6 +135,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
       if (!mounted) return;
 
+      // Update dashboard values after data has loaded.
       setState(() {
         _totalQuizzes = quizzes.length;
         _totalPupils = pupils.length;
@@ -125,6 +155,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     }
   }
 
+  // Load unread quiz completion alerts for the current teacher.
   Future<void> _loadCompletionAlerts() async {
     try {
       final user = supabase.auth.currentUser;
@@ -145,6 +176,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       });
     } catch (_) {
       if (!mounted) return;
+
       setState(() {
         _completionAlerts = [];
         _loadingAlerts = false;
@@ -152,6 +184,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     }
   }
 
+  // Open results screen from an alert and mark alerts as read.
   Future<void> _openResultsFromAlert() async {
     final user = supabase.auth.currentUser;
 
@@ -180,6 +213,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       ),
     );
   }
+
+  // Convert the database date into a simple day/month/year format.
   String _formatDate(String? rawDate) {
     if (rawDate == null || rawDate.isEmpty) return '';
 
@@ -188,20 +223,16 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
     return '${parsed.day}/${parsed.month}/${parsed.year}';
   }
-  bool _loadingDashboard = true;
-  int _totalQuizzes = 0;
-  int _totalPupils = 0;
-  int _completedAttempts = 0;
-  double _averageScore = 0;
-  List<Map<String, dynamic>> _recentQuizzes = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: _buildDrawer(),
+
+      // Main dashboard layout.
       body: Stack(
         children: [
-          // Background
+          // Main background.
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -216,6 +247,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             ),
           ),
 
+          // Decorative circles in the background.
           Positioned(
             top: -80,
             right: -70,
@@ -231,6 +263,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             child: Builder(
               builder: (context) {
                 return RefreshIndicator(
+                  // Refresh dashboard data when the user pulls down.
                   onRefresh: () async {
                     await _loadCompletionAlerts();
                     await _loadDashboardData();
@@ -241,7 +274,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Top bar
+                        // Top bar with menu button and title.
                         Row(
                           children: [
                             IconButton(
@@ -270,6 +303,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
                         const SizedBox(height: 28),
 
+                        // Welcome text.
                         Text(
                           'Welcome back, Teacher!',
                           style: GoogleFonts.poppins(
@@ -289,6 +323,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           ),
                         ),
 
+                        // Show completion alert only when unread alerts exist.
                         if (!_loadingAlerts && _completionAlerts.isNotEmpty) ...[
                           const SizedBox(height: 18),
                           _completionAlertCard(),
@@ -296,7 +331,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
                         const SizedBox(height: 26),
 
-                        // Statistics cards - sample data for now
+                        // Dashboard statistic cards.
                         GridView.count(
                           crossAxisCount: 2,
                           shrinkWrap: true,
@@ -308,25 +343,33 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                             _statCard(
                               icon: Icons.post_add_outlined,
                               iconColor: const Color(0xFF1E90FF),
-                              value: _loadingDashboard ? '...' : _totalQuizzes.toString(),
+                              value: _loadingDashboard
+                                  ? '...'
+                                  : _totalQuizzes.toString(),
                               label: 'Quizzes Created',
                             ),
                             _statCard(
                               icon: Icons.groups_2_outlined,
                               iconColor: const Color(0xFF00D1C1),
-                              value: _loadingDashboard ? '...' : _totalPupils.toString(),
+                              value: _loadingDashboard
+                                  ? '...'
+                                  : _totalPupils.toString(),
                               label: 'Pupils',
                             ),
                             _statCard(
                               icon: Icons.check_circle_outline,
                               iconColor: const Color(0xFF8E5CF7),
-                              value: _loadingDashboard ? '...' : _completedAttempts.toString(),
+                              value: _loadingDashboard
+                                  ? '...'
+                                  : _completedAttempts.toString(),
                               label: 'Completed Attempts',
                             ),
                             _statCard(
                               icon: Icons.bar_chart_outlined,
                               iconColor: const Color(0xFFFFC107),
-                              value: _loadingDashboard ? '...' : '${_averageScore.toStringAsFixed(0)}%',
+                              value: _loadingDashboard
+                                  ? '...'
+                                  : '${_averageScore.toStringAsFixed(0)}%',
                               label: 'Average Score',
                             ),
                           ],
@@ -334,6 +377,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
                         const SizedBox(height: 30),
 
+                        // Main quick action section.
                         Text(
                           'Quick Actions',
                           style: GoogleFonts.poppins(
@@ -382,7 +426,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                           subtitle: 'See pupils’ scores and quiz outcomes',
                           onTap: _openViewResults,
                         ),
+
                         const SizedBox(height: 30),
+
+                        // Management section.
                         Text(
                           'Manage',
                           style: GoogleFonts.poppins(
@@ -427,6 +474,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 
                         const SizedBox(height: 30),
 
+                        // Recent quiz section header.
                         Row(
                           children: [
                             Text(
@@ -463,7 +511,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                         ),
 
                         const SizedBox(height: 16),
-                        
+
+                        // Display the latest quizzes created by the teacher.
                         _recentQuizBox(),
                       ],
                     ),
@@ -477,12 +526,14 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Build the side drawer menu.
   Drawer _buildDrawer() {
     return Drawer(
       backgroundColor: const Color(0xFF142532),
       child: SafeArea(
         child: Column(
           children: [
+            // Drawer header.
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(22),
@@ -521,6 +572,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               ),
             ),
 
+            // Drawer navigation links.
             _drawerItem(
               icon: Icons.person_outline,
               title: 'Profile',
@@ -580,6 +632,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             const Spacer(),
             const Divider(color: Colors.white24, height: 1),
 
+            // Logout from teacher account.
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.white),
               title: Text(
@@ -596,6 +649,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Card shown when all pupils have completed a quiz.
   Widget _completionAlertCard() {
     final count = _completionAlerts.length;
     final firstAlert = _completionAlerts.first;
@@ -643,6 +697,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                 ),
               ),
               const SizedBox(width: 8),
+
+              // Open results and mark alerts as read.
               TextButton(
                 onPressed: _openResultsFromAlert,
                 child: Text(
@@ -660,6 +716,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Reusable card for showing dashboard statistics.
   Widget _statCard({
     required IconData icon,
     required Color iconColor,
@@ -724,6 +781,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Reusable large action card for main dashboard actions.
   Widget _quickActionCard({
     required IconData icon,
     required Color iconBackground,
@@ -797,6 +855,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       ),
     );
   }
+
+  // Reusable smaller card for the manage section.
   Widget _smallActionCard({
     required IconData icon,
     required String title,
@@ -835,6 +895,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       ),
     );
   }
+
+  // Display recent quizzes, loading state, or empty message.
   Widget _recentQuizBox() {
     if (_loadingDashboard) {
       return _glassContainer(
@@ -888,6 +950,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       ),
     );
   }
+
+  // Reusable container used for loading and empty states.
   Widget _glassContainer({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -900,6 +964,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       child: child,
     );
   }
+
+  // Display one recent quiz item.
   Widget _recentQuizItem({
     required String title,
     required String className,
@@ -907,6 +973,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     required String status,
     required Color iconColor,
   }) {
+    // Used to choose the colour of the quiz status label.
     final bool isPublished = status == 'Published';
 
     return Padding(
@@ -953,6 +1020,8 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             ),
           ),
           const SizedBox(width: 8),
+
+          // Quiz status badge.
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -980,6 +1049,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open create class screen.
   void _openCreateClass() {
     Navigator.push(
       context,
@@ -989,6 +1059,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open manage classes screen.
   void _openManageClasses() {
     Navigator.push(
       context,
@@ -998,6 +1069,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open view classes screen.
   void _openViewClasses() {
     Navigator.push(
       context,
@@ -1007,6 +1079,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open manual quiz creation screen.
   void _openCreateQuiz() {
     Navigator.push(
       context,
@@ -1016,6 +1089,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open AI smart quiz creation screen.
   void _openCreateSmartQuiz() {
     Navigator.push(
       context,
@@ -1025,6 +1099,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open quiz management screen.
   void _openManageQuizzes() {
     Navigator.push(
       context,
@@ -1034,6 +1109,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open teacher results screen.
   void _openViewResults() {
     Navigator.push(
       context,
@@ -1043,6 +1119,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Open analytics screen.
   void _openAnalytics() {
     Navigator.push(
       context,
@@ -1052,6 +1129,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Logout teacher and return to login screen.
   Future<void> _logout() async {
     await supabase.auth.signOut();
 
@@ -1066,6 +1144,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Reusable drawer item.
   Widget _drawerItem({
     required IconData icon,
     required String title,
@@ -1081,6 +1160,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
     );
   }
 
+  // Decorative circle used in the background.
   Widget _buildCircle(double size, Color color) {
     return Container(
       width: size,

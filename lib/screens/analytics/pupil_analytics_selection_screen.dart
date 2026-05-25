@@ -1,3 +1,36 @@
+// ======================================================
+// pupil_analytics_selection_screen.dart
+//
+// PURPOSE:
+// Allow teacher to select a class and pupil
+// before opening detailed pupil analytics.
+//
+// MAIN FEATURES:
+// - Load teacher classes
+// - Load pupils for selected class
+// - Open analytics for selected pupil
+//
+// DATABASE:
+//
+// READ:
+// - classes
+//   → Retrieve classes created by teacher
+//
+// - pupils
+//   → Retrieve pupils belonging to selected class
+//
+// WRITE:
+// No database updates
+//
+// API:
+// No external API calls
+//
+// NAVIGATION:
+//
+// Opens:
+// - PupilAnalyticsScreen
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -16,32 +49,35 @@ class PupilAnalyticsSelectionScreen extends StatefulWidget {
 
 class _PupilAnalyticsSelectionScreenState
     extends State<PupilAnalyticsSelectionScreen> {
+  // Supabase client used for database access.
   final supabase = Supabase.instance.client;
-
+  // Store loaded classes, pupils and screen state.
   bool _isLoading = true;
   List<dynamic> _classes = [];
   List<dynamic> _pupils = [];
   String? _selectedClassId;
-
+  // Load available teacher classes on startup.
   @override
   void initState() {
     super.initState();
     _loadClasses();
   }
-
+  // READ from classes table
+  // Load classes created by current teacher.
   Future<void> _loadClasses() async {
     setState(() => _isLoading = true);
 
     try {
+      // Retrieve current authenticated teacher.
       final user = supabase.auth.currentUser;
       if (user == null) return;
-
+      // Query classes table and sort alphabetically.
       final classes = await supabase
           .from('classes')
           .select('id, class_name')
           .eq('teacher_id', user.id)
           .order('class_name', ascending: true);
-
+      // Store classes returned from database.
       setState(() {
         _classes = classes;
       });
@@ -53,20 +89,23 @@ class _PupilAnalyticsSelectionScreenState
       }
     }
   }
-
+  // READ from pupils table
+  // Load pupils for selected class.
   Future<void> _loadPupils(String classId) async {
+    // Reset previous pupil list before loading.
     setState(() {
       _isLoading = true;
       _pupils = [];
     });
 
     try {
+      // Query pupils table using selected class ID.
       final pupils = await supabase
           .from('pupils')
           .select('id, full_name, username')
           .eq('class_id', classId)
           .order('full_name', ascending: true);
-
+      // Store pupils returned from database.
       setState(() {
         _pupils = pupils;
       });
@@ -78,7 +117,7 @@ class _PupilAnalyticsSelectionScreenState
       }
     }
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -113,7 +152,7 @@ class _PupilAnalyticsSelectionScreenState
         ),
       ),
     );
-
+    // Make card clickable when navigation is needed.
     if (onTap == null) return card;
 
     return InkWell(
@@ -122,7 +161,7 @@ class _PupilAnalyticsSelectionScreenState
       child: card,
     );
   }
-
+  // Build class and pupil selection interface.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,6 +215,7 @@ class _PupilAnalyticsSelectionScreenState
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      // Select class before loading pupils.
                       _glassCard(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,6 +263,7 @@ class _PupilAnalyticsSelectionScreenState
                                       ),
                                     );
                                   }).toList(),
+                                  // Load pupils when another class is selected.
                                   onChanged: (value) async {
                                     if (value == null) return;
                                     setState(() {
@@ -273,11 +314,13 @@ class _PupilAnalyticsSelectionScreenState
                             ),
                           ),
                         ),
+                      // Display pupils and open analytics on selection.
                       ..._pupils.map((pupil) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: _glassCard(
                             onTap: () {
+                              // Open analytics for selected pupil.
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

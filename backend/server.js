@@ -1,3 +1,4 @@
+//Unused file. Kept for future development (Backend with Node JS)
 require("dotenv").config();
 
 const express = require("express");

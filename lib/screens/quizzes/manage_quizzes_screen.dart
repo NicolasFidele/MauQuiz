@@ -1,3 +1,42 @@
+// ======================================================
+// manage_quizzes_screen.dart
+//
+// PURPOSE:
+// Allow teachers to manage created quizzes
+// and access draft or published quizzes.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load quizzes created by current teacher
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - teacher-quizzes
+// - Retrieve teacher quizzes
+//
+// DELETE → Supabase Edge Function
+// - teacher-delete-quiz
+// - Delete selected draft quiz
+//
+// Quiz Management
+// - Separate draft and published quizzes
+// - Open quiz for review
+// - Refresh list after updates
+//
+// Editing Rules
+// - Draft quizzes can be opened and deleted
+// - Published quizzes remain available for viewing
+//
+// Navigation
+// - Open quiz preview screen
+//
+// Utilities
+// - Display status messages
+// - Refresh quiz data
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

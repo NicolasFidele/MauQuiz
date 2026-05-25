@@ -1,3 +1,37 @@
+// ======================================================
+// quiz_analytics_detail_screen.dart
+//
+// PURPOSE:
+// Display detailed analytics for one selected quiz.
+//
+// MAIN FEATURES:
+// - Load quiz performance details
+// - Show hardest and easiest questions
+// - Display question success rates
+// - Show response statistics
+//
+// DATABASE:
+// No direct database access
+//
+// API / CLOUD:
+//
+// READ:
+// Supabase Edge Function:
+// - analytics-quiz-detail
+//
+// Returned data:
+// - quiz information
+// - question statistics
+// - question highlights
+//
+// INPUT:
+// - quizId
+//
+// NAVIGATION:
+// Opened from:
+// - QuizAnalyticsScreen
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -19,35 +53,39 @@ class QuizAnalyticsDetailScreen extends StatefulWidget {
 }
 
 class _QuizAnalyticsDetailScreenState extends State<QuizAnalyticsDetailScreen> {
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
-
+  // Store quiz analytics data and loading state.
   bool _isLoading = true;
   Map<String, dynamic>? _quiz;
   List<dynamic> _questions = [];
   Map<String, dynamic>? _highlights;
-
+  // Load quiz analytics when screen opens.
   @override
   void initState() {
     super.initState();
     _fetchDetails();
   }
-
+  // READ quiz analytics using Supabase Edge Function.
   Future<void> _fetchDetails() async {
     setState(() => _isLoading = true);
-
+    // SEND request to analytics-quiz-detail Edge Function.
+    // Quiz ID is used to retrieve analytics.
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/analytics-quiz-detail?quizId=${widget.quizId}'),
       );
-
+      // Validate that server returned JSON.
       if (!response.body.trim().startsWith('{')) {
         _showSnack('Server did not return valid JSON for quiz details.');
         setState(() => _isLoading = false);
         return;
       }
+      // Convert JSON response into usable objects.
       final data = jsonDecode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Store analytics data returned by Edge Function.
         setState(() {
           _quiz = data['quiz'];
           _questions = data['questions'] ?? [];
@@ -64,13 +102,13 @@ class _QuizAnalyticsDetailScreenState extends State<QuizAnalyticsDetailScreen> {
       }
     }
   }
-
+  // Determine display colour based on correct rate.
   Color _rateColor(int score) {
     if (score < 50) return Colors.redAccent;
     if (score < 70) return Colors.orange;
     return Colors.green;
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -103,8 +141,9 @@ class _QuizAnalyticsDetailScreenState extends State<QuizAnalyticsDetailScreen> {
       ),
     );
   }
-
+  // Display hardest and easiest question highlights.
   Widget _highlightRow(String label, dynamic question, Color color) {
+    // Prevent rendering if analytics data is missing.
     if (question == null) return const SizedBox.shrink();
 
     return Container(
@@ -147,7 +186,7 @@ class _QuizAnalyticsDetailScreenState extends State<QuizAnalyticsDetailScreen> {
       ),
     );
   }
-
+  // Extract question highlights for display.
   @override
   Widget build(BuildContext context) {
     final hardest = _highlights?['hardest_question'];

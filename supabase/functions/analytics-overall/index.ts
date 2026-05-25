@@ -1,34 +1,37 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// Allow requests from Flutter application.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
-
+// Start Edge Function and handle requests.
 serve(async (req) => {
+  // Handle browser preflight requests.
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
-
+  // Read parameters sent from Flutter.
   try {
     const url = new URL(req.url);
+    // Retrieve teacher identifier.
     const teacherId = url.searchParams.get("teacherId");
-
+    // Validate required input.
     if (!teacherId) {
       return new Response(JSON.stringify({ error: "Missing teacherId" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
+    // Create secure database connection.
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-
+    // READ → classes - Retrieve teacher classes.
     const { data: classes, error: classesError } = await supabase
       .from("classes")
       .select("id, class_name")
@@ -46,9 +49,9 @@ serve(async (req) => {
         },
       );
     }
-
+    // Extract class identifiers.
     const classIds = (classes || []).map((c: any) => c.id);
-
+    // READ → smart_quizzes - Retrieve published quizzes.
     const { data: quizzes, error: quizzesError } = await supabase
       .from("smart_quizzes")
       .select("id, subject, class_id, status")
@@ -67,7 +70,7 @@ serve(async (req) => {
         },
       );
     }
-
+    // Return empty analytics when no quizzes exist.
     if (!quizzes || quizzes.length === 0) {
       return new Response(
         JSON.stringify({
@@ -88,12 +91,13 @@ serve(async (req) => {
         },
       );
     }
-
+    // Extract quiz identifiers.
     const quizIds = quizzes.map((q: any) => q.id);
 
     let pupils: any[] = [];
 
     if (classIds.length > 0) {
+      // READ → pupils - Retrieve pupils from teacher classes.
       const { data: pupilsData, error: pupilsError } = await supabase
         .from("pupils")
         .select("id, class_id")
@@ -114,7 +118,7 @@ serve(async (req) => {
 
       pupils = pupilsData || [];
     }
-
+    // READ → smart_quiz_attempts - Retrieve pupil quiz attempts.
     const { data: attempts, error: attemptsError } = await supabase
       .from("smart_quiz_attempts")
       .select("quiz_id, pupil_id, status, score_percent")
@@ -132,13 +136,13 @@ serve(async (req) => {
         },
       );
     }
-
+    // Keep only completed submissions.
     const submittedAttempts = (attempts || []).filter(
       (a: any) => a.status === "submitted",
     );
-
+    // Calculate total completed attempts.
     const totalSubmissions = submittedAttempts.length;
-
+    // Calculate average score.
     const overallAverageScore =
       totalSubmissions > 0
         ? Math.round(
@@ -148,16 +152,16 @@ serve(async (req) => {
             ) / totalSubmissions,
           )
         : 0;
-
+    // Calculate expected participation.
     const totalPossibleSubmissions = quizzes.length * pupils.length;
-
+    // Calculate participation percentage.
     const participationRate =
       totalPossibleSubmissions > 0
         ? Math.round((totalSubmissions / totalPossibleSubmissions) * 100)
         : 0;
-
+    // Prepare subject performance summary.
     const subjectMap: Record<string, any> = {};
-
+    // Group quizzes by subject.
     for (const quiz of quizzes) {
       if (!subjectMap[quiz.subject]) {
         subjectMap[quiz.subject] = {
@@ -170,7 +174,7 @@ serve(async (req) => {
 
       subjectMap[quiz.subject].quizzes_count += 1;
     }
-
+    // Add scores to subject statistics.
     for (const attempt of submittedAttempts) {
       const quiz = quizzes.find((q: any) => q.id === attempt.quiz_id);
       if (!quiz) continue;
@@ -178,7 +182,7 @@ serve(async (req) => {
       subjectMap[quiz.subject].submissions_count += 1;
       subjectMap[quiz.subject].total_score += Number(attempt.score_percent || 0);
     }
-
+    // Calculate average score per subject.
     const subjects = Object.values(subjectMap).map((item: any) => ({
       subject: item.subject,
       quizzes_count: item.quizzes_count,
@@ -188,13 +192,13 @@ serve(async (req) => {
           ? Math.round(item.total_score / item.submissions_count)
           : 0,
     }));
-
+    // Rank subjects by performance.
     subjects.sort((a: any, b: any) => b.average_score - a.average_score);
 
     const subjectsWithSubmissions = subjects.filter(
       (s: any) => s.submissions_count > 0,
     );
-
+    // Identify strongest and weakest subjects
     const strongestSubject =
       subjectsWithSubmissions.length > 0 ? subjectsWithSubmissions[0] : null;
 
@@ -202,7 +206,7 @@ serve(async (req) => {
       subjectsWithSubmissions.length > 0
         ? subjectsWithSubmissions[subjectsWithSubmissions.length - 1]
         : null;
-
+    // Return analytics to Flutter.
     return new Response(
       JSON.stringify({
         success: true,

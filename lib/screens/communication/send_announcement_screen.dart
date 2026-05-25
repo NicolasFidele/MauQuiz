@@ -1,3 +1,39 @@
+// ======================================================
+// send_announcement_screen.dart
+//
+// PURPOSE:
+// Allow teachers to create and manage announcements.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load classes and previous announcements
+//
+// Database Operations
+//
+// READ → classes
+// - Retrieve teacher classes
+// - Populate class selection list
+//
+// READ → announcements
+// - Retrieve previously sent announcements
+//
+// WRITE → announcements
+// - Save new announcement
+//
+// DELETE → announcements
+// - Remove selected announcement
+//
+// Announcement Rules
+// - Send to one class or all classes
+// - Store teacher and class reference
+//
+// Utilities
+// - Display status messages
+// - Format announcement date
+// - Refresh announcement list
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

@@ -1,3 +1,39 @@
+// ======================================================
+// pupil_analytics_screen.dart
+//
+// PURPOSE:
+// Display detailed analytics for one selected pupil.
+//
+// MAIN FEATURES:
+// - Load pupil analytics
+// - Display average performance
+// - Show strongest and weakest subtopics
+// - Display performance by subtopic
+// - Generate teacher insights
+//
+// DATABASE:
+// No direct database access
+//
+// API / CLOUD:
+//
+// READ:
+// Supabase Edge Function:
+// - analytics-pupil
+//
+// Returned data:
+// - overall pupil statistics
+// - attempts
+// - subtopic performance
+//
+// INPUT:
+// - pupilId
+// - pupilName
+//
+// NAVIGATION:
+// Opened from:
+// - PupilAnalyticsSelectionScreen
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -20,9 +56,10 @@ class PupilAnalyticsScreen extends StatefulWidget {
 }
 
 class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
-
+  // Store analytics results and loading state.
   bool _isLoading = true;
 
   int averageScore = 0;
@@ -30,15 +67,19 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
   List<dynamic> subtopics = [];
 
   @override
+  // Load pupil analytics when screen opens.
   void initState() {
     super.initState();
     _fetchData();
   }
-
+  // READ analytics data for selected pupil
+  // using Supabase Edge Function.
   Future<void> _fetchData() async {
     setState(() => _isLoading = true);
 
     try {
+      // SEND request to analytics-pupil Edge Function.
+      // Pupil ID is used to calculate performance.
       final response = await http.get(
         Uri.parse('$baseUrl/analytics-pupil?pupilId=${widget.pupilId}'),
       );
@@ -46,6 +87,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Store analytics data returned by Edge Function.
         setState(() {
           averageScore = (data['overall']?['average_score'] ?? 0) as int;
           attempts = (data['overall']?['attempts'] ?? 0) as int;
@@ -64,19 +106,19 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       }
     }
   }
-
+  // Determine score colour for visual indicators.
   Color _scoreColor(int score) {
     if (score < 50) return Colors.redAccent;
     if (score < 70) return Colors.orange;
     return Colors.green;
   }
-
+  // Generate performance category from score.
   String _performanceLabel(int score) {
     if (score < 50) return 'Needs support';
     if (score < 70) return 'Making progress';
     return 'Doing well';
   }
-
+  // Generate teacher interpretation from analytics.
   String _teacherInsight() {
     if (attempts == 0) {
       return 'This pupil has not yet submitted any quiz, so there is no performance data available.';
@@ -92,12 +134,13 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
 
     return 'This pupil is performing well overall in the assessed subtopics.';
   }
-
+  // Group subtopics by subject and identify
+  // strongest and weakest performance areas. 
   List<Map<String, dynamic>> _subjectHighlights() {
     if (subtopics.isEmpty) return [];
 
     final Map<String, List<dynamic>> grouped = {};
-
+    // Organise subtopics by subject.
     for (final item in subtopics) {
       final subject = (item['subject'] ?? 'Unknown').toString();
       grouped.putIfAbsent(subject, () => []);
@@ -109,7 +152,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
     for (final entry in grouped.entries) {
       final subject = entry.key;
       final items = [...entry.value];
-
+      // Sort scores to determine weakest and strongest.
       items.sort(
         (a, b) => ((a['average_score'] ?? 0) as num)
             .compareTo((b['average_score'] ?? 0) as num),
@@ -133,7 +176,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
 
     return results;
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(
@@ -166,7 +209,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       ),
     );
   }
-
+  // Display analytics summary indicators.
   Widget _summaryTile({
     required String title,
     required String value,
@@ -207,7 +250,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       ),
     );
   }
-
+  // Display performance for one assessed subtopic.
   Widget _subtopicBar(dynamic item) {
     final score = (item['average_score'] ?? 0) as int;
     final color = _scoreColor(score);
@@ -285,7 +328,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       ),
     );
   }
-
+  // Display strongest and weakest highlights.
   Widget _highlightRow({
     required String label,
     required String value,
@@ -331,9 +374,10 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
       ),
     );
   }
-
+  // Build pupil analytics interface.
   @override
   Widget build(BuildContext context) {
+    // Prepare subject highlights for display.
     final subjectHighlights = _subjectHighlights();
 
     return Scaffold(
@@ -430,6 +474,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
+                        // Display strongest and weakest subject areas.
                         if (subjectHighlights.isNotEmpty)
                           _glassCard(
                             child: Column(
@@ -529,6 +574,7 @@ class _PupilAnalyticsScreenState extends State<PupilAnalyticsScreen> {
                               ),
                             ),
                           ),
+                          // Display detailed subtopic performance.
                         ...subtopics.map(_subtopicBar),
                       ],
                     ),

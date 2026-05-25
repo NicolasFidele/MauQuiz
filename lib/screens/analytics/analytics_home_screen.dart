@@ -1,3 +1,28 @@
+// ======================================================
+// analytics_home_screen.dart
+//
+// PURPOSE:
+// Main entry screen for teacher analytics.
+//
+// MAIN FEATURES:
+// - Display available analytics modules
+// - Navigate to detailed analytics screens
+//
+// DATABASE:
+// No direct database access
+//
+// API:
+// No API calls
+//
+// NAVIGATION:
+//
+// Opens:
+// - SubtopicAnalyticsScreen
+// - PupilAnalyticsSelectionScreen
+// - QuizAnalyticsScreen
+// - OverallAnalyticsScreen
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -187,6 +212,7 @@ class AnalyticsHomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 18),
+                // Open subtopic analytics screen.
                 _analyticsTile(
                   context: context,
                   title: 'Subtopic Analytics',
@@ -204,6 +230,7 @@ class AnalyticsHomeScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 12),
+                // Open pupil analytics screen.
                 _analyticsTile(
                   context: context,
                   title: 'Pupil Analytics',
@@ -221,6 +248,7 @@ class AnalyticsHomeScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 12),
+                // Open quiz analytics screen.
                 _analyticsTile(
                   context: context,
                   title: 'Quiz Analytics',
@@ -238,6 +266,7 @@ class AnalyticsHomeScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 12),
+                // Open overall analytics summary.
                 _analyticsTile(
                   context: context,
                   title: 'Overall Summary',

@@ -1,3 +1,40 @@
+// ======================================================
+// pupil_leaderboard_detail_screen.dart
+//
+// PURPOSE:
+// Display detailed leaderboard results
+// for a selected quiz.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load leaderboard information
+// - Start celebration animation
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-leaderboard-detail
+// - Retrieve quiz details
+// - Retrieve podium rankings
+// - Retrieve pupil performance
+//
+// Leaderboard Logic
+// - Display top 3 positions
+// - Display pupil participation status
+// - Display pupil score
+//
+// Result Analysis
+// - Generate encouragement messages
+//   based on score
+// - Format quiz completion duration
+//
+// Utilities
+// - Display status messages
+// - Refresh leaderboard data
+// - Show confetti celebration
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';

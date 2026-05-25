@@ -1,3 +1,39 @@
+// ======================================================
+// badges_screen.dart
+//
+// PURPOSE:
+// Display badges earned by the pupil
+// based on quiz performance.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load pupil quiz results
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-results
+// - Retrieve quiz results for selected pupil
+//
+// Badge Logic
+// - Calculate unlocked badges
+// - Evaluate score and participation conditions
+// - Track improvement and subject exploration
+//
+// Badge Conditions
+// - First completed quiz
+// - Perfect score
+// - Quiz participation
+// - Score improvement
+// - Subject diversity
+//
+// Utilities
+// - Convert score values
+// - Display progress messages
+// - Refresh badge data
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

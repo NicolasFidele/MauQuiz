@@ -1,3 +1,37 @@
+// ======================================================
+// teacher_attempt_review_screen.dart
+//
+// PURPOSE:
+// Allow teachers to review a pupil's
+// completed quiz attempt.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load selected quiz attempt
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - teacher-result-review
+// - Retrieve pupil attempt details
+// - Retrieve answers and explanations
+//
+// Review Logic
+// - Display quiz information
+// - Display pupil score and percentage
+// - Compare pupil answers with correct answers
+// - Display answer correctness
+//
+// Teacher Analysis
+// - View explanations
+// - Review pupil performance question by question
+//
+// Utilities
+// - Display status messages
+// - Refresh review data
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

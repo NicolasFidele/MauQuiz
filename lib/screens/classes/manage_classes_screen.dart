@@ -1,4 +1,38 @@
-// import 'dart:convert';
+// ======================================================
+// manage_classes_screen.dart
+//
+// PURPOSE:
+// Allow teachers to manage existing classes and pupils.
+//
+// MAIN LOGIC:
+//
+// Class Loading
+// - Load classes created by the current teacher
+// - Load pupils belonging to each class
+//
+// Database Operations
+//
+// READ → classes
+// - Retrieve teacher classes
+//
+// READ → pupils
+// - Retrieve pupils linked to each class
+//
+// DELETE → pupils
+// - Remove selected pupil
+//
+// DELETE → classes
+// - Delete selected class
+//
+// Navigation
+// - Open AddPupilScreen
+// - Reload data after changes
+//
+// Utilities
+// - Confirm deletion actions
+// - Format class creation date
+//
+// ======================================================
 import 'dart:ui';
 // import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';

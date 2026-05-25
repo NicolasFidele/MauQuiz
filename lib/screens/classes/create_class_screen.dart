@@ -1,3 +1,48 @@
+// ======================================================
+// create_class_screen.dart
+//
+// PURPOSE:
+// Create a new class and add pupils at the same time.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Store class name and temporary pupil list.
+//
+// Pupil Management
+// - Add pupil names before creating class
+// - Remove pupils from temporary list
+//
+// Class Creation
+// - Validate class information
+// - Generate class code automatically
+// - Generate unique usernames for pupils
+//
+// Database Operations
+//
+// WRITE → classes
+// - Save class information
+// - Store teacher ID and generated class code
+//
+// WRITE → pupils
+// - Create pupil accounts linked to the class
+// - Store generated usernames
+// - Store hashed default PIN
+// - Enable forced PIN change at first login
+//
+// Security
+// - Default PIN is hashed using SHA-256
+// - Plain PIN is never stored
+//
+// Username Rules
+// - Generated using class code + pupil first name
+// - Duplicate names receive numbering
+//
+// Result
+// - Display generated usernames
+// - Show temporary login information
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 import 'package:crypto/crypto.dart';

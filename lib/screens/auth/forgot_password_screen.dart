@@ -1,3 +1,38 @@
+// ======================================================
+// forgot_password_screen.dart
+//
+// PURPOSE:
+// Allow teachers to securely reset their password.
+//
+// MAIN FEATURES:
+// - Send password reset code by email
+// - Validate password strength
+// - Verify recovery code
+// - Update teacher password
+// - Redirect to login after reset
+//
+// DATABASE:
+// No direct table access
+//
+// AUTHENTICATION:
+//
+// Supabase Auth:
+//
+// READ:
+// - Verify recovery code
+//
+// WRITE:
+// - Update teacher password
+//
+// API:
+// No external API calls
+//
+// NAVIGATION:
+//
+// Opens:
+// - LoginScreen after successful reset
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -14,18 +49,19 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  // Supabase Auth client used for password recovery.
   final supabase = Supabase.instance.client;
-
+  // Controllers used for password reset form.
   final _emailController = TextEditingController();
   final _codeController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
+  // Screen state during reset process.
   bool _loading = false;
   bool _codeSent = false;
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
-
+  // Release text controllers when screen closes.
   @override
   void dispose() {
     _emailController.dispose();
@@ -34,7 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
-
+  // Send password recovery email using Supabase Auth.
   Future<void> _sendResetCode() async {
     final email = _emailController.text.trim();
 
@@ -44,7 +80,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     setState(() => _loading = true);
-
+    // Send password reset request to Supabase Auth.
     try {
       await supabase.auth.resetPasswordForEmail(email);
 
@@ -57,7 +93,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
-
+  // Validate password security requirements.
   String? _validateStrongPassword(String password) {
     if (password.length < 8) {
       return 'Password must be at least 8 characters.';
@@ -77,7 +113,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     return null;
   }
-
+  // Verify reset code and update teacher password.
   Future<void> _resetPassword() async {
     final email = _emailController.text.trim();
     final code = _codeController.text.trim();
@@ -107,24 +143,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     setState(() => _loading = true);
-
+    // Verify OTP received by email.
     try {
       await supabase.auth.verifyOTP(
         email: email,
         token: code,
         type: OtpType.recovery,
       );
-
+      // UPDATE teacher password in Supabase Auth.
       await supabase.auth.updateUser(
         UserAttributes(password: newPassword),
       );
-
+      // End session after password update.
       await supabase.auth.signOut();
 
       if (!mounted) return;
 
       _showMessage('Password reset successfully. Please login again.');
-
+      // Return teacher to login screen.
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -138,7 +174,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
-
+  // Display messages to user.
   void _showMessage(String message) {
     if (!mounted) return;
 
@@ -146,7 +182,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       SnackBar(content: Text(message)),
     );
   }
-
+  // Build password recovery interface.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,3 +1,33 @@
+// ======================================================
+// view_classes_screen.dart
+//
+// PURPOSE:
+// Display classes created by the teacher
+// and allow viewing pupil details.
+//
+// MAIN LOGIC:
+//
+// Class Loading
+// - Load classes belonging to current teacher
+// - Load pupils for each class
+// - Calculate pupil count per class
+//
+// Database Operations
+//
+// READ → classes
+// - Retrieve teacher classes
+//
+// READ → pupils
+// - Retrieve pupil names and usernames
+// - Link pupils to their class
+//
+// Navigation
+// - Open class details dialog
+//
+// Utilities
+// - Format creation date for display
+// - Refresh class information
+// ======================================================
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

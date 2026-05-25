@@ -1,3 +1,36 @@
+// ======================================================
+// subtopic_analytics_screen.dart
+//
+// PURPOSE:
+// Display performance analytics by subtopic
+// to help teachers identify strengths and weaknesses.
+//
+// MAIN FEATURES:
+// - Load subtopic analytics
+// - Display average performance
+// - Highlight weak areas for reteaching
+// - Show quiz and attempt statistics
+//
+// DATABASE:
+// No direct database access
+//
+// API / CLOUD:
+//
+// READ:
+// Supabase Edge Function:
+// - analytics-subtopics
+//
+// Returned data:
+// - subtopic performance
+// - average scores
+// - attempts
+// - quiz usage
+//
+// NAVIGATION:
+// Opened from:
+// - AnalyticsHomeScreen
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -15,6 +48,7 @@ class SubtopicAnalyticsScreen extends StatefulWidget {
 }
 
 class _SubtopicAnalyticsScreenState extends State<SubtopicAnalyticsScreen> {
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
   final supabase = Supabase.instance.client;

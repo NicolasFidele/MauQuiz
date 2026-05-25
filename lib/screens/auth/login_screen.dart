@@ -1,3 +1,65 @@
+// ======================================================
+// login_screen.dart
+//
+// PURPOSE:
+// Main authentication screen for MauQuiz.
+//
+// This screen allows both teachers and pupils
+// to access the application using different
+// authentication methods.
+//
+// MAIN FEATURES:
+// - Teacher login using Supabase Auth
+// - Pupil login using username and 4-digit PIN
+// - Hash pupil PIN before validation
+// - Validate login credentials
+// - Store pupil session locally
+// - Redirect users according to account type
+// - Access registration and password recovery
+//
+// DATABASE:
+//
+// READ:
+//
+// - pupils
+//   → Retrieve pupil account using username
+//   → Read pin_hash and must_change_pin
+//
+// WRITE:
+//
+// Local Session Storage:
+//
+// SharedPreferences
+// - pupil_logged_in
+// - pupil_id
+// - pupil_full_name
+// - pupil_username
+//
+// AUTHENTICATION:
+//
+// Teacher:
+// - Supabase Auth
+// - Email + Password
+//
+// Pupil:
+// - Custom authentication
+// - Username + SHA-256 hashed PIN
+//
+// SECURITY:
+//
+// - PIN is never stored in plain text
+// - SHA-256 used for PIN comparison
+// - First login may force PIN reset
+//
+// NAVIGATION:
+//
+// Opens:
+// - RegisterScreen
+// - ForgotPasswordScreen
+// - CreateNewPinScreen
+// - TeacherDashboard
+// - PupilDashboard
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -448,27 +510,28 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                                     ],
                                     const SizedBox(height: 12),
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: TextButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => const ForgotPasswordScreen(),
+                                      if (isTeacher)
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: TextButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => const ForgotPasswordScreen(),
+                                                ),
+                                              );
+                                            },
+                                            child: Text(
+                                              'Forgot Password?',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white70,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w500,
                                               ),
-                                            );
-                                          },
-                                          child: Text(
-                                            'Forgot Password?',
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white70,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
-                                      ),
                                     const SizedBox(height: 20),
 
                                     SizedBox(

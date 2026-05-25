@@ -1,3 +1,37 @@
+// ======================================================
+// teacher_results_screen.dart
+//
+// PURPOSE:
+// Allow teachers to view overall quiz results
+// and access detailed performance analysis.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load teacher result overview
+// - Load available classes
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - teacher-results-overview
+// - Retrieve classes
+// - Retrieve quiz summaries
+// - Retrieve overall statistics
+//
+// Result Analysis
+// - Filter results by class
+// - Display participation statistics
+// - Display average and highest scores
+//
+// Navigation
+// - Open detailed quiz result screen
+//
+// Utilities
+// - Refresh overview data
+// - Display status messages
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

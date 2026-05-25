@@ -1,3 +1,48 @@
+// ======================================================
+// smart_quiz_preview_screen.dart
+//
+// PURPOSE:
+// Allow teachers to review, edit and publish
+// AI-generated quiz drafts.
+//
+// MAIN LOGIC:
+//
+// Quiz Initialisation
+// - Load generated draft quiz
+// - Load questions and answer options
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - teacher-quiz-detail
+// - Retrieve draft quiz information
+//
+// WRITE → Supabase Edge Function
+// - teacher-update-quiz
+// - Save edited draft
+//
+// WRITE → Supabase Edge Function
+// - teacher-publish-quiz
+// - Publish final quiz
+//
+// Editing Logic
+// - Edit quiz title
+// - Edit questions and explanations
+// - Update answer options
+// - Manage correct answers
+//
+// Publishing Rules
+// - Only draft quizzes can be edited
+// - Published quizzes become read-only
+//
+// Navigation
+// - Return to dashboard after publishing
+//
+// Utilities
+// - Validate updates
+// - Display confirmation and status messages
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

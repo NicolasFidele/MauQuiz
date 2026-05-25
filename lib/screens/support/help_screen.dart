@@ -1,3 +1,20 @@
+// ======================================================
+// help_screen.dart
+//
+// PURPOSE:
+// Provide quick guidance for using
+// the main features of MauQuiz.
+//
+// MAIN LOGIC:
+//
+// Information Display
+// - Show common help topics
+// - Explain key application features
+//
+// Navigation
+// - Return to previous screen
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

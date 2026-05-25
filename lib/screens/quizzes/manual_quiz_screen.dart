@@ -1,3 +1,51 @@
+// ======================================================
+// manual_quiz_screen.dart
+//
+// PURPOSE:
+// Allow teachers to manually create quiz questions
+// and generate answer options before publishing.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load teacher classes
+// - Load curriculum subjects, topics and subtopics
+//
+// Database Operations
+//
+// READ → classes
+// - Retrieve teacher classes
+//
+// Backend Operations
+//
+// READ → Supabase Edge Functions
+// - curriculum-subjects
+// - curriculum-topics
+// - curriculum-subtopics
+//
+// WRITE → Supabase Edge Function
+// - generate-manual-quiz-draft
+// - Generate answers and create draft quiz
+//
+// Quiz Creation
+// - Teacher writes questions manually
+// - Configure difficulty and quiz settings
+// - Configure availability and deadline
+//
+// AI Rules
+// - Generate answers from teacher questions
+// - Keep generation aligned with curriculum
+// - Save quiz as draft before publishing
+//
+// Navigation
+// - Open quiz preview screen
+//
+// Utilities
+// - Validate inputs
+// - Generate question fields
+// - Format date and time
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

@@ -1,3 +1,7 @@
+// Teacher Profile Screen
+// This screen allows teachers to view profile details,
+// see statistics, change password,
+// reset pupil PINs and update profile picture.
 import 'dart:io';
 import 'dart:ui';
 import 'dart:convert';
@@ -17,32 +21,33 @@ class TeacherProfileScreen extends StatefulWidget {
 }
 
 class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
+  // Supabase client used for authentication and database operations.
   final supabase = Supabase.instance.client;
-
+  // Controllers used for form input fields.
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _pupilUsernameController = TextEditingController();
-
+  // Teacher profile information.
   String? _teacherName;
   String? _teacherEmail;
   String? _profileImagePath;
-
+  // Statistics shown on profile screen.
   int _totalQuizzes = 0;
   int _totalClasses = 0;
   int _totalPupils = 0;
   int _totalAttempts = 0;
-
+  // Loading states for profile actions.
   bool _loading = true;
   bool _savingPassword = false;
   bool _resettingPin = false;
-
+  // Load teacher profile and statistics when screen opens.
   @override
   void initState() {
     super.initState();
     _loadProfileData();
   }
-
+  // Release controllers to avoid memory leaks.
   @override
   void dispose() {
     _currentPasswordController.dispose();
@@ -51,12 +56,12 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
     _pupilUsernameController.dispose();
     super.dispose();
   }
-
+  // Load teacher information, profile image, and dashboard statistics from Supabase.
   Future<void> _loadProfileData() async {
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
-
+      // Load saved profile picture from local storage.
       final prefs = await SharedPreferences.getInstance();
       _profileImagePath = prefs.getString('teacher_profile_image_${user.id}');
 
@@ -66,7 +71,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
           user.userMetadata?['name'] ??
           user.email?.split('@').first ??
           'Teacher';
-
+      // Count teacher quizzes, classes, pupils and attempts.
       final quizzes = await supabase
           .from('smart_quizzes')
           .select('id')
@@ -86,7 +91,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
           .from('smart_quiz_attempts')
           .select('id, smart_quizzes!inner(teacher_id)')
           .eq('smart_quizzes.teacher_id', user.id);
-
+      // Update screen after loading data.
       setState(() {
         _totalQuizzes = quizzes.length;
         _totalClasses = classes.length;
@@ -99,7 +104,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       _showMessage('Error loading profile: $e');
     }
   }
-
+  // Select a profile image from gallery.
   Future<void> _pickProfileImage() async {
     final user = supabase.auth.currentUser;
     if (user == null) return;
@@ -112,7 +117,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
     );
 
     if (image == null) return;
-
+    // Save image path locally for future sessions.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('teacher_profile_image_${user.id}', image.path);
 
@@ -120,7 +125,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       _profileImagePath = image.path;
     });
   }
-
+  // Check if password follows security rules.
   String? _validateStrongPassword(String password) {
     if (password.length < 8) {
       return 'Password must be at least 8 characters.';
@@ -140,7 +145,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
 
     return null;
   }
-
+  // Verify current password and update to a stronger password.
   Future<void> _changePassword() async {
     final currentPassword = _currentPasswordController.text.trim();
     final newPassword = _newPasswordController.text.trim();
@@ -207,12 +212,12 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       }
     }
   }
-
+  // Convert pupil PIN into SHA-256 hash.
   String _hashPin(String pin) {
     final bytes = utf8.encode(pin);
     return sha256.convert(bytes).toString();
   }
-
+  // Reset selected pupil PIN to default value.
   Future<void> _resetPupilPin() async {
     final username = _pupilUsernameController.text.trim();
     final user = supabase.auth.currentUser;
@@ -228,7 +233,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
 
     try {
       final defaultPinHash = _hashPin('1234');
-
+      // Update pupil PIN and force PIN change at next login.
       final result = await supabase
           .from('pupils')
           .update({
@@ -251,7 +256,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       setState(() => _resettingPin = false);
     }
   }
-
+  // Display messages to the user.
   void _showMessage(String message) {
     if (!mounted) return;
 
@@ -259,7 +264,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       SnackBar(content: Text(message)),
     );
   }
-
+  // Build profile screen layout.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -293,7 +298,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Decorative background for profile page.
   Widget _background() {
     return Stack(
       children: [
@@ -328,7 +333,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ],
     );
   }
-
+  // Top navigation section.
   Widget _topBar() {
     return Row(
       children: [
@@ -361,11 +366,12 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ],
     );
   }
-
+  // Display teacher information and profile image.
   Widget _profileHeader() {
     return _glassCard(
       child: Column(
         children: [
+          // Tap profile image to select another picture.
           GestureDetector(
             onTap: _pickProfileImage,
             child: Stack(
@@ -429,7 +435,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Display teacher activity statistics.
   Widget _statisticsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +463,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ],
     );
   }
-
+  // Section for updating teacher password.
   Widget _changePasswordSection() {
     return _glassCard(
       child: Column(
@@ -504,7 +510,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Section for resetting pupil PIN.
   Widget _resetPupilPasswordSection() {
     return _glassCard(
       child: Column(
@@ -536,7 +542,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Reusable statistics card.
   Widget _statCard(IconData icon, String title, int value) {
     return _glassCard(
       padding: const EdgeInsets.all(14),
@@ -566,7 +572,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Reusable glass style container.
   Widget _glassCard({
     required Widget child,
     EdgeInsets padding = const EdgeInsets.all(18),
@@ -595,7 +601,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Reusable input field.
   Widget _inputField({
     required TextEditingController controller,
     required String hint,
@@ -623,7 +629,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Reusable action button.
   Widget _button({
     required String text,
     required IconData icon,
@@ -649,7 +655,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Reusable section heading.
   Widget _sectionTitle(String title) {
     return Text(
       title,
@@ -660,7 +666,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       ),
     );
   }
-
+  // Decorative background circle.
   Widget _circle(double size, Color color) {
     return Container(
       width: size,

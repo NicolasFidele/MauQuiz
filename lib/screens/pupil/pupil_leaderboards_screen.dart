@@ -1,3 +1,34 @@
+// ======================================================
+// pupil_leaderboards_screen.dart
+//
+// PURPOSE:
+// Display available leaderboards and pupil rankings.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load leaderboard information
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-leaderboards
+// - Retrieve quiz leaderboard data
+// - Retrieve pupil participation status
+//
+// Leaderboard Logic
+// - Display participation results
+// - Show pupil score if available
+// - Identify quizzes not attempted
+//
+// Navigation
+// - Open detailed leaderboard view
+//
+// Utilities
+// - Display loading and error messages
+// - Refresh leaderboard data
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

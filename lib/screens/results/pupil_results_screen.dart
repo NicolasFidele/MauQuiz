@@ -1,3 +1,39 @@
+// ======================================================
+// pupil_results_screen.dart
+//
+// PURPOSE:
+// Display completed quiz results
+// and allow pupils to review answers.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load pupil quiz results
+//
+// Backend Operations
+//
+// READ → Supabase Edge Functions
+// - pupil-results
+// - Retrieve completed quizzes
+//
+// READ → Supabase Edge Function
+// - pupil-result-review
+// - Retrieve detailed review for a quiz attempt
+//
+// Result Logic
+// - Display score and correct answers
+// - Display submission history
+// - Open detailed result review
+//
+// Navigation
+// - Open quiz result screen
+//
+// Utilities
+// - Format submission date
+// - Display status messages
+// - Refresh result data
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

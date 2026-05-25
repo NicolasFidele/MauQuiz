@@ -1,3 +1,7 @@
+// Dashboard screen
+// This screen is the main landing page after teacher login.
+// It displays the logged-in teacher email, dashboard sections, and logout options.
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,17 +13,21 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get Supabase client and the current logged-in teacher.
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
+
+    // Show the teacher email if it exists.
     final email = user?.email ?? 'No email';
 
     return Scaffold(
+      // Side menu for dashboard navigation.
       drawer: Drawer(
         backgroundColor: const Color(0xFF1B2A41),
         child: SafeArea(
           child: Column(
             children: [
-              // Header
+              // Drawer header showing teacher account information.
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -54,7 +62,7 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
 
-              // Dummy items
+              // Temporary drawer items for future navigation.
               _drawerItem('Item 1'),
               _drawerItem('Item 2'),
               _drawerItem('Item 3'),
@@ -63,6 +71,7 @@ class DashboardScreen extends StatelessWidget {
 
               const Spacer(),
 
+              // Logout from Supabase and return to login screen.
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.white),
                 title: Text(
@@ -88,9 +97,10 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
 
+      // Main dashboard content.
       body: Stack(
         children: [
-          // Background (same theme style)
+          // Dashboard background.
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -104,14 +114,14 @@ class DashboardScreen extends StatelessWidget {
           ),
 
           SafeArea(
+            // Builder is used so the menu button can open the drawer.
             child: Builder(
               builder: (context) => SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    // Top bar
+                    // Top bar with drawer button and user icon.
                     Row(
                       children: [
                         IconButton(
@@ -127,7 +137,7 @@ class DashboardScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Title
+                    // Dashboard title.
                     Text(
                       'Dashboard',
                       style: GoogleFonts.poppins(
@@ -144,6 +154,7 @@ class DashboardScreen extends StatelessWidget {
                       style: GoogleFonts.poppins(color: Colors.white70),
                     ),
 
+                    // Display current teacher email.
                     Text(
                       email,
                       style: GoogleFonts.poppins(
@@ -154,11 +165,12 @@ class DashboardScreen extends StatelessWidget {
 
                     const SizedBox(height: 25),
 
-                    // Main container
+                    // Placeholder area for future dashboard information.
                     _glassBox('Container 1'),
 
                     const SizedBox(height: 20),
 
+                    // Section for quick dashboard actions.
                     Text(
                       'Quick Section',
                       style: GoogleFonts.poppins(
@@ -170,7 +182,7 @@ class DashboardScreen extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                    // Grid placeholders
+                    // Temporary action cards.
                     GridView.count(
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
@@ -187,7 +199,7 @@ class DashboardScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Another container
+                    // Additional placeholder sections.
                     _glassBox('Container 2'),
 
                     const SizedBox(height: 20),
@@ -196,7 +208,7 @@ class DashboardScreen extends StatelessWidget {
 
                     const SizedBox(height: 25),
 
-                    // Logout button
+                    // Logout button for the teacher account.
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -227,6 +239,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  // Reusable drawer item widget.
   static Widget _drawerItem(String title) {
     return ListTile(
       title: Text(
@@ -237,6 +250,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  // Reusable glass-style container for dashboard sections.
   static Widget _glassBox(String text) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
@@ -259,6 +273,8 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
+// Reusable dashboard card.
+// It is used to display shortcut buttons on the dashboard.
 class DashboardCard extends StatelessWidget {
   final String title;
 
@@ -266,6 +282,7 @@ class DashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Glass-style card used for quick dashboard actions.
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(

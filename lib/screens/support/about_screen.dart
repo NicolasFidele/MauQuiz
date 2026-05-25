@@ -1,3 +1,21 @@
+// ======================================================
+// about_screen.dart
+//
+// PURPOSE:
+// Display information about MauQuiz
+// and present the main features
+// of the application.
+//
+// MAIN LOGIC: 
+//
+// Information Display
+// - Present project overview
+// - Describe main app features
+//
+// Navigation
+// - Return to previous screen
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

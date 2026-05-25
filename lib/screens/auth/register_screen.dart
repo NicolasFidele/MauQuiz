@@ -1,3 +1,68 @@
+// ======================================================
+// register_screen.dart
+//
+// PURPOSE:
+// Allow teachers to create a MauQuiz account
+// before accessing the application.
+//
+// MAIN FEATURES:
+// - Register teacher account
+// - Validate registration form
+// - Enforce strong password rules
+// - Create teacher account using Supabase Auth
+// - Store additional teacher information
+// - Redirect user to email verification
+//
+// DATABASE:
+//
+// WRITE:
+//
+// Supabase Auth:
+// - auth.users
+//   → Create teacher account
+//
+// User Metadata:
+// - full_name
+// - phone
+//
+// READ:
+// No direct database reads
+//
+// AUTHENTICATION:
+//
+// Teacher Registration:
+// - Email
+// - Password
+// - OTP verification after registration
+//
+// SECURITY:
+//
+// Password Rules:
+// - Minimum 8 characters
+// - At least 1 capital letter
+// - At least 1 number
+// - At least 1 special character
+//
+// API:
+// No external API calls
+//
+// INPUT:
+//
+// Registration Data:
+// - Full Name
+// - Phone Number
+// - Email
+// - Password
+//
+// NAVIGATION:
+//
+// Opens:
+// - OtpScreen
+//
+// Returns to:
+// - LoginScreen
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

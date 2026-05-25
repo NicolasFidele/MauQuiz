@@ -1,3 +1,35 @@
+// ======================================================
+// pupil_quizzes_screen.dart
+//
+// PURPOSE:
+// Display quizzes available to the pupil
+// and allow quiz access.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load quizzes assigned to the pupil
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-quizzes
+// - Retrieve assigned quizzes
+// - Retrieve availability and attempt status
+//
+// Quiz Logic
+// - Separate open and unavailable quizzes
+// - Display attempt status and scores
+// - Control access based on availability
+//
+// Navigation
+// - Open quiz attempt screen
+// - Refresh quiz data after completion
+//
+// Utilities
+// - Display loading and error messages
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 

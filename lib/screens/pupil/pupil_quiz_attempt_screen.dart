@@ -1,3 +1,47 @@
+// ======================================================
+// pupil_quiz_attempt_screen.dart
+//
+// PURPOSE:
+// Allow pupils to attempt quizzes
+// and view their results after submission.
+//
+// MAIN LOGIC:
+//
+// Quiz Initialisation
+// - Open selected quiz
+// - Load questions and quiz settings
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - pupil-quiz-start
+// - Retrieve quiz details
+// - Retrieve questions and options
+//
+// WRITE → Supabase Edge Function
+// - pupil-quiz-submit
+// - Submit pupil answers
+// - Receive score and review
+//
+// Quiz Logic
+// - Store pupil answers temporarily
+// - Support multiple question types
+// - Handle manual and automatic submission
+// - Control quiz timer
+//
+// Result Processing
+// - Calculate final result
+// - Display score and corrections
+// - Display explanations for each question
+//
+// Navigation
+// - Open result and review screen
+//
+// Utilities
+// - Format timer display
+// - Display status messages
+//
+// ======================================================
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';

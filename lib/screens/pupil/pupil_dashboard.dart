@@ -1,3 +1,31 @@
+// ======================================================
+// pupil_dashboard.dart
+//
+// PURPOSE:
+// Main dashboard for pupil access and navigation.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Receive pupil information after login
+//
+// Navigation
+// - Open announcements
+// - Open available quizzes
+// - Open results
+// - Open leaderboard
+// - Open badges
+//
+// Session Management
+// - Keep pupil information available
+//   across screens
+// - Return to login on logout
+//
+// Data Flow
+// - Pass pupil ID and profile data
+//   to other modules
+//
+// ======================================================
 import 'dart:ui';
 
 import 'package:flutter/material.dart';

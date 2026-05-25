@@ -1,3 +1,35 @@
+// ======================================================
+// quiz_analytics_screen.dart
+//
+// PURPOSE:
+// Display analytics summary for quizzes created by teacher.
+//
+// MAIN FEATURES:
+// - Load quiz analytics
+// - Display quiz participation
+// - Display score indicators
+// - Open detailed quiz analytics
+//
+// DATABASE:
+// No direct database access
+//
+// API / CLOUD:
+//
+// READ:
+// Supabase Edge Function:
+// - analytics-quizzes
+//
+// Returned data:
+// - quiz statistics
+// - participation indicators
+// - score summaries
+//
+// NAVIGATION:
+//
+// Opens:
+// - QuizAnalyticsDetailScreen
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
@@ -16,32 +48,35 @@ class QuizAnalyticsScreen extends StatefulWidget {
 }
 
 class _QuizAnalyticsScreenState extends State<QuizAnalyticsScreen> {
+  // Base URL for Supabase Edge Functions.
   static const String baseUrl =
     'https://celzxcaciqjayubgwoxp.supabase.co/functions/v1';
+  // Supabase client used to identify current teacher.
   final supabase = Supabase.instance.client;
-
+  // Store quiz analytics results and loading state.
   bool _isLoading = true;
   List<dynamic> _quizzes = [];
-
-  @override
+  // Load quiz analytics when screen opens.
+  @override 
   void initState() {
     super.initState();
     _fetchQuizAnalytics();
   }
-
+  // Read quiz analytics using Supabase Edge Function.
   Future<void> _fetchQuizAnalytics() async {
     setState(() => _isLoading = true);
-
+    // Retrieve current authenticated teacher.
     try {
       final user = supabase.auth.currentUser;
       if (user == null) return;
-
+      // SEND request to analytics-quizzes Edge Function.
+      // Teacher ID is used to retrieve analytics.
       final response = await http.get(
         Uri.parse('$baseUrl/analytics-quizzes?teacherId=${user.id}'),
       );
-
+      // Convert JSON response into usable objects.
       final data = jsonDecode(response.body);
-
+      // Store analytics results returned by Edge Function.
       if (response.statusCode >= 200 && response.statusCode < 300) {
         setState(() {
           _quizzes = data['quizzes'] ?? [];
@@ -57,7 +92,7 @@ class _QuizAnalyticsScreenState extends State<QuizAnalyticsScreen> {
       }
     }
   }
-
+  // Display messages to teacher.
   void _showSnack(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -182,8 +217,10 @@ class _QuizAnalyticsScreenState extends State<QuizAnalyticsScreen> {
                 ? const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   )
+                  // Allow teacher to refresh analytics manually.
                 : RefreshIndicator(
                     onRefresh: _fetchQuizAnalytics,
+                    // Show message when no analytics are available.
                     child: _quizzes.isEmpty
                         ? ListView(
                             padding: const EdgeInsets.all(16),
@@ -267,6 +304,7 @@ class _QuizAnalyticsScreenState extends State<QuizAnalyticsScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 12),
+                                        // Display participation and score indicators.
                                         Wrap(
                                           spacing: 10,
                                           runSpacing: 10,

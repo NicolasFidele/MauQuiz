@@ -1,3 +1,46 @@
+// ======================================================
+// teacher_quiz_results_screen.dart
+//
+// PURPOSE:
+// Allow teachers to monitor quiz results
+// and publish leaderboard results.
+//
+// MAIN LOGIC:
+//
+// Initialisation
+// - Load selected quiz results
+// - Load participation summary
+//
+// Backend Operations
+//
+// READ → Supabase Edge Function
+// - teacher-quiz-results
+// - Retrieve quiz information
+// - Retrieve participation statistics
+// - Retrieve pupil results
+//
+// WRITE → Supabase Edge Function
+// - teacher-publish-leaderboard
+// - Publish leaderboard to pupils
+//
+// Result Analysis
+// - Display submitted attempts
+// - Display started attempts
+// - Display not attempted pupils
+// - Display pupil scores
+//
+// Leaderboard Rules
+// - Leaderboard can be published once
+// - Only completed attempts can be reviewed
+//
+// Navigation
+// - Open teacher attempt review screen
+//
+// Utilities
+// - Display status messages
+// - Refresh quiz results
+//
+// ======================================================
 import 'dart:convert';
 import 'dart:ui';
 
